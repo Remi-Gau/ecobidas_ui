@@ -1,0 +1,42 @@
+---
+name: Test and coverage
+
+on:
+    push:
+        branches:
+        -   main
+    pull_request:
+        branches:
+        -   '*'
+
+env:
+    FORCE_COLOR: true
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    test:
+        runs-on: ubuntu-latest
+        steps:
+        -   name: Clone repo
+            uses: actions/checkout@v4
+            with:
+                submodules: true
+        -   name: Set up Python
+            uses: actions/setup-python@v5
+            with:
+                python-version: 3.11
+        -   name: Install dependencies
+            run: pip install --upgrade pip tox
+        -   name: Show tox config
+            run: tox c
+        -   name: Run tests
+            run: tox run -e test
+        -   name: Upload coverage to Codecov
+            uses: codecov/codecov-action@v4
+            with:
+                file: ./coverage.xml
+                fail_ci_if_error: false
+                verbose: true

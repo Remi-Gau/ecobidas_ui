@@ -16,7 +16,7 @@ ALLOWED_EXTENSIONS = {".tsv", ".json"}
 
 
 def local_cobidas_schema():
-    return Path(__file__).parents[3] / "cobidas_schema"
+    return Path(__file__).parents[2] / "ecobidas_central" / "cobidas_schema"
 
 
 def allowed_file(filename: str | Path):

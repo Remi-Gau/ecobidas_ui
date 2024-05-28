@@ -41,9 +41,10 @@ def validate_participants_json(participants_json: Path | str | dict):
     )
 
 
-def validate_participants_tsv(file: Path | pd.DataFrame):
-    df = pd.read_csv(file, sep="\t")
-    return "participant_id" in df.columns
+def validate_participants_tsv(participants_tsv: Path | pd.DataFrame):
+    if not isinstance(participants_tsv, pd.DataFrame):
+        participants_tsv = pd.read_csv(participants_tsv, sep="\t")
+    return "participant_id" in participants_tsv.columns
 
 
 class UploadBoldJsonForm(FlaskForm):
