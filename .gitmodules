@@ -1,0 +1,4 @@
+[submodule "ecobidas_central"]
+	path = ecobidas_central
+	url = https://github.com/Remi-Gau/eCobidas.git
+	datalad-url = https://github.com/Remi-Gau/eCobidas.git
