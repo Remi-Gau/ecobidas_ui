@@ -18,14 +18,13 @@ dependencies = [
     "markdownify"
 ]
 description = "UI for eCOBIDAS"
+# Version from setuptools_scm
+dynamic = ["version"]
 license = {text = "GPL 3.0"}
 maintainers = [{name = "Remi Gau", email = "remi.gau2@mcgill.ca"}]
 name = "ecobidas_ui"
 readme = "README.md"
 requires-python = ">=3.11"
-# Version from setuptools_scm
-# dynamic = ["version"]
-version = "0.1.0"
 
 [project.optional-dependencies]
 dev = [
@@ -41,8 +40,8 @@ test = [
 line-length = 100
 
 [tool.codespell]
-# ignore-words-list = ""
-skip = "./.git,*.svg,env,"
+ignore-words-list = "te"
+skip = "./.git,*.svg,env"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "ecobidas_ui/_version.py"

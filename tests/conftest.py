@@ -1,4 +1,5 @@
 import pytest
+
 from ecobidas_ui.app import create_app
 
 

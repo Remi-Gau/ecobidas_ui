@@ -1,5 +1,6 @@
-from ecobidas_ui import settings
 from flask_assets import Bundle, Environment
+
+from ecobidas_ui import settings
 
 # consolidated css bundle
 css_bundle = Bundle("css/main.css")

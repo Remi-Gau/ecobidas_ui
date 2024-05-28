@@ -2,13 +2,14 @@ import logging
 import sys
 from pathlib import Path
 
+from flask import Flask, flash, render_template
+
 from ecobidas_ui import auth, db, generate, protocols, public
 from ecobidas_ui._version import version
 from ecobidas_ui.extensions import bootstrap, csrf_protect
 
 # from ecobidas_ui.extensions import cache, debug_toolbar
 from ecobidas_ui.initializers.assets import init_assets
-from flask import Flask, flash, render_template
 
 
 def create_app(config_object="ecobidas_ui.settings"):

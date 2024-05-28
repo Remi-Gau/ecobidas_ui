@@ -2,6 +2,11 @@ import json
 from pathlib import Path
 from typing import Any
 
+from flask import Blueprint, current_app, flash, redirect, render_template, request
+from flask_wtf import FlaskForm
+from markupsafe import Markup
+from werkzeug.utils import secure_filename
+
 from ecobidas_ui.protocols.forms import (
     UploadBoldJsonForm,
     UploadParticipantsForm,
@@ -20,10 +25,6 @@ from ecobidas_ui.protocols.utils import (
     protocol_url,
     update_format,
 )
-from flask import Blueprint, current_app, flash, redirect, render_template, request
-from flask_wtf import FlaskForm
-from markupsafe import Markup
-from werkzeug.utils import secure_filename
 
 blueprint = Blueprint("protocol", __name__, url_prefix="/protocol")
 

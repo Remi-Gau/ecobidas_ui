@@ -1,4 +1,5 @@
 import pytest
+
 from ecobidas_ui.protocols.utils import (
     extract_values_participants,
     get_nav_bar_content,

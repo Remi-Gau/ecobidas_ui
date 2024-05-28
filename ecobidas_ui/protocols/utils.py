@@ -6,10 +6,11 @@ from typing import Any
 
 import pandas as pd
 import requests
-from ecobidas_ui.utils import LANG
 from flask import flash
 from markupsafe import escape
 from rich import print
+
+from ecobidas_ui.utils import LANG
 
 ALLOWED_EXTENSIONS = {".tsv", ".json"}
 
