@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from flask import Blueprint, current_app, flash, redirect, render_template, request
+from flask import Blueprint, abort, current_app, flash, redirect, render_template, request
 from flask_wtf import FlaskForm
 from markupsafe import Markup
 from werkzeug.utils import secure_filename
@@ -26,27 +26,36 @@ from ecobidas_ui.protocols.utils import (
     update_format,
 )
 
+KNWON_PROTOCOLS = ["neurovault", "eyetracking", "pet", "cobidas", "reexecution"]
+
 blueprint = Blueprint("protocol", __name__, url_prefix="/protocol")
 
 
 @blueprint.route("/<protocol_name>", methods=["GET", "POST"])
 def protocol(protocol_name: str) -> str:
 
-    protocol_content = get_protocol(protocol_name)
+    if protocol_name in KNWON_PROTOCOLS:
 
-    landing_page_url = protocol_url(protocol_name).parent / protocol_content["landingPage"]["@id"]
-    landing_page = get_landing_page(landing_page_url)
+        protocol_content = get_protocol(protocol_name)
 
-    activities = get_nav_bar_content(protocol_name)
+        landing_page_url = (
+            protocol_url(protocol_name).parent / protocol_content["landingPage"]["@id"]
+        )
+        landing_page = get_landing_page(landing_page_url)
 
-    return render_template(
-        "protocol.html",
-        protocol_pref_label=protocol_name,
-        protocol_preamble=protocol_content["preamble"][LANG],
-        activities=activities,
-        landing_page=landing_page,
-        show_export_button=show_export_button(protocol_name),
-    )
+        activities = get_nav_bar_content(protocol_name)
+
+        return render_template(
+            "protocol.html",
+            protocol_pref_label=protocol_name,
+            protocol_preamble=protocol_content["preamble"][LANG],
+            activities=activities,
+            landing_page=landing_page,
+            show_export_button=show_export_button(protocol_name),
+        )
+
+    else:
+        abort(404)
 
 
 def show_export_button(protocol_name):
