@@ -3,16 +3,16 @@ import functools
 from flask import Blueprint, flash, g, redirect, render_template, request, session, url_for
 from werkzeug.security import check_password_hash, generate_password_hash
 
+from ecobidas_ui.auth.forms import LoginForm, RegisterForm
 from ecobidas_ui.db import get_db
-from ecobidas_ui.auth.forms import LoginForm
 
-blueprint = Blueprint("auth", __name__, url_prefix="/auth")
+blueprint = Blueprint("auth", __name__, url_prefix="/auth", template_folder="templates")
 
 
 @blueprint.route("/register", methods=("GET", "POST"))
 def register():
 
-    form = LoginForm()
+    form = RegisterForm()
 
     if request.method == "POST":
 
@@ -45,6 +45,9 @@ def register():
 
 @blueprint.route("/login", methods=("GET", "POST"))
 def login():
+
+    form = LoginForm()
+
     if request.method == "POST":
 
         username = request.form["username"]
@@ -65,7 +68,7 @@ def login():
 
         flash(error, category="warning")
 
-    return render_template("auth/login.html")
+    return render_template("auth/login.html", form=form)
 
 
 @blueprint.before_app_request

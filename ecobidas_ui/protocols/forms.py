@@ -28,7 +28,7 @@ class UploadParticipantsForm(FlaskForm):
             FileAllowed(["tsv", "json"], "File must be '.tsv' and '.json' files."),
         ],
     )
-    submit = SubmitField("Upload")
+    submit_upload = SubmitField("Upload")
 
 
 def validate_participants_json(participants_json: Path | str | dict):

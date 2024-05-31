@@ -110,6 +110,13 @@ def update_format(items: dict[str, Any], form_data):
     return items
 
 
+def activity_in_protocol(protocol_name, activity_name):
+    protocol_name = escape(protocol_name)
+    activity_name = escape(activity_name)
+    protocol_content = get_protocol(protocol_name)
+    return any(x["variableName"] == activity_name for x in protocol_content["ui"]["addProperties"])
+
+
 def prep_activity_page(protocol_name: str, activity_name: str):
     protocol_name = escape(protocol_name)
     activity_name = escape(activity_name)
@@ -121,6 +128,7 @@ def prep_activity_page(protocol_name: str, activity_name: str):
         if activity["variableName"] == activity_name:
             is_about_activity = activity["isAbout"]
             break
+
     activity_file = protocol_url(protocol_name).parent / is_about_activity
 
     with open(activity_file) as f:

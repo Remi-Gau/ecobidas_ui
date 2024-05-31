@@ -5,13 +5,25 @@
 
 {% block content %}
 
-<div class="col-md-12 col-lg-12 p-3">{{ render_form(form) }}</div>
+<div class="container mt-3">
+  <div class="row d-flex justify-content-center">
+    <div class="col-md-6 col-lg-6 p-3">
+      <h1>Login</h1>
+      {{ render_form(form) }}
+      <p class="my-3">
+        Don't have a login?
+        <a href="{{ url_for('auth.register') }}">Register</a>
+      </p>
+    </div>
+  </div>
+</div>
 
-<form method="post">
+<!-- <form method="post">
   <label for="username">Username</label>
   <input name="username" id="username" required />
   <label for="password">Password</label>
   <input type="password" name="password" id="password" required />
   <input type="submit" value="Log In" />
-</form>
+</form> -->
+
 {% endblock %}

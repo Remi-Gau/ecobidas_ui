@@ -16,6 +16,7 @@ from ecobidas_ui.protocols.forms import (
 )
 from ecobidas_ui.protocols.utils import (
     LANG,
+    activity_in_protocol,
     allowed_file,
     extract_values_participants,
     get_landing_page,
@@ -28,34 +29,30 @@ from ecobidas_ui.protocols.utils import (
 
 KNWON_PROTOCOLS = ["neurovault", "eyetracking", "pet", "cobidas", "reexecution"]
 
-blueprint = Blueprint("protocol", __name__, url_prefix="/protocol")
+blueprint = Blueprint("protocol", __name__, url_prefix="/protocol", template_folder="templates")
 
 
 @blueprint.route("/<protocol_name>", methods=["GET", "POST"])
 def protocol(protocol_name: str) -> str:
 
-    if protocol_name in KNWON_PROTOCOLS:
-
-        protocol_content = get_protocol(protocol_name)
-
-        landing_page_url = (
-            protocol_url(protocol_name).parent / protocol_content["landingPage"]["@id"]
-        )
-        landing_page = get_landing_page(landing_page_url)
-
-        activities = get_nav_bar_content(protocol_name)
-
-        return render_template(
-            "protocol.html",
-            protocol_pref_label=protocol_name,
-            protocol_preamble=protocol_content["preamble"][LANG],
-            activities=activities,
-            landing_page=landing_page,
-            show_export_button=show_export_button(protocol_name),
-        )
-
-    else:
+    if protocol_name not in KNWON_PROTOCOLS:
         abort(404)
+
+    protocol_content = get_protocol(protocol_name)
+
+    landing_page_url = protocol_url(protocol_name).parent / protocol_content["landingPage"]["@id"]
+    landing_page = get_landing_page(landing_page_url)
+
+    activities = get_nav_bar_content(protocol_name)
+
+    return render_template(
+        "protocols/protocol.html",
+        protocol_pref_label=protocol_name,
+        protocol_preamble=protocol_content["preamble"][LANG],
+        activities=activities,
+        landing_page=landing_page,
+        show_export_button=show_export_button(protocol_name),
+    )
 
 
 def show_export_button(protocol_name):
@@ -64,6 +61,11 @@ def show_export_button(protocol_name):
 
 @blueprint.get("/<protocol_name>/<activity_name>")
 def activity_get(protocol_name, activity_name) -> str:
+
+    if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(
+        protocol_name, activity_name
+    ):
+        abort(404)
 
     activities, activity, items = prep_activity_page(protocol_name, activity_name)
 
@@ -75,7 +77,7 @@ def activity_get(protocol_name, activity_name) -> str:
     nb_items = sum(bool(i["visibility"]) for i in items.values())
 
     return render_template(
-        "protocol.html",
+        "protocols/protocol.html",
         protocol_pref_label=protocol_name,
         activity_pref_label=activity["prefLabel"][LANG],
         activity_preamble=activity["preamble"][LANG],
@@ -91,6 +93,12 @@ def activity_get(protocol_name, activity_name) -> str:
 
 @blueprint.post("/<protocol_name>/<activity_name>")
 def activity_post(protocol_name, activity_name) -> str:
+
+    if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(
+        protocol_name, activity_name
+    ):
+        abort(404)
+
     current_app.logger.info(f"{protocol_name}-{activity_name}")
 
     activities, activity, items = prep_activity_page(protocol_name, activity_name)
@@ -103,7 +111,7 @@ def activity_post(protocol_name, activity_name) -> str:
 
     if (
         upload_participants_form
-        and upload_participants_form.is_submitted()
+        and upload_participants_form.submit_upload.data
         and upload_participants_form.validate_on_submit()
     ):
 
@@ -143,7 +151,6 @@ def activity_post(protocol_name, activity_name) -> str:
             )
             return redirect(request.url)
 
-        #  TODO values in fields for participant data are not updated.
         form, items, fields = process_participants_form(
             form, activity_name, items, tsv_file, json_file
         )
@@ -156,7 +163,7 @@ def activity_post(protocol_name, activity_name) -> str:
         message = f"The following fields were updated: {fields}"
         flash(message, category="success")
 
-    if extra_form and extra_form.is_submitted() and extra_form.validate_on_submit():
+    if extra_form and extra_form.submit_bold_json.data and extra_form.validate_on_submit():
 
         data = extra_form.bold_json.data
         if not isinstance(data, list):
@@ -188,7 +195,7 @@ def activity_post(protocol_name, activity_name) -> str:
         message = f"The following fields were updated: {fields}"
         flash(message, category="success")
 
-    elif form.is_submitted():
+    elif form.submit.data and form.is_submitted():
 
         form, items = update_items_and_forms(form.data, items, activity_name)
 
@@ -198,11 +205,11 @@ def activity_post(protocol_name, activity_name) -> str:
     flash("Your data was saved.", category="success")
 
     if nb_items > base_nb_items:
-            # update so it gets the right number and the names of items added
-            flash(f"{nb_items - base_nb_items}  items were added.", category="success")
+        # update so it gets the right number and the names of items added
+        flash(f"{nb_items - base_nb_items}  items were added.", category="success")
 
     return render_template(
-        "protocol.html",
+        "protocols/protocol.html",
         protocol_pref_label=protocol_name,
         activity_pref_label=activity["prefLabel"][LANG],
         activity_preamble=activity["preamble"][LANG],

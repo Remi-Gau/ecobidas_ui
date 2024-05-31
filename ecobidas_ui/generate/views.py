@@ -3,17 +3,19 @@
 import json
 from pathlib import Path
 
-from flask import Blueprint, current_app, render_template, send_from_directory
+from flask import Blueprint, current_app, flash, render_template, send_from_directory
 from markdownify import markdownify as md
 
-from ecobidas_ui.protocols.utils import local_cobidas_schema
-
-blueprint = Blueprint("generate", __name__, url_prefix="/generate")
+blueprint = Blueprint("generate", __name__, url_prefix="/generate", template_folder="templates")
 
 
 def dummmy_data():
     with open(
-        current_app.config["ROOT_DIR"] / ".." / "inputs" / "bids_template" / "task-auditoryLocalizer_bold.json"
+        current_app.config["ROOT_DIR"]
+        / ".."
+        / "inputs"
+        / "bids_template"
+        / "task-auditoryLocalizer_bold.json"
     ) as f:
         data = json.load(f)
     return data
@@ -21,6 +23,11 @@ def dummmy_data():
 
 @blueprint.route("/", methods=["GET", "POST"])
 def generate():
+    flash(
+        """This page was generated using dummy data.
+        In the final version the content of this page should adapt to the valuesyou inputted in the checklist.""",
+        category="warning",
+    )
     return render_template("generate/index.html", **dummmy_data())
 
 
