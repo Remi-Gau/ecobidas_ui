@@ -1,3 +1,6 @@
+{% from 'bootstrap4/utils.html' import render_icon %}
+{% from 'bootstrap4/utils.html' import render_messages %}
+
 <!doctype html>
 <html lang="en">
   <head>
@@ -30,7 +33,7 @@
             class="alert alert-danger rounded-0 text center m-0 d-flex justify-content-center"
             role="alert"
           >
-            <h4 class="m-0">🚧 This website is under construction !!!!!! 🚧</h4>
+            <h4 class="m-0"> {{ render_icon('cone-striped') }} 🚧 This website is under construction !!!!!! 🚧 {{ render_icon('cone-striped') }}</h4>
           </div>
         </div>
       </div>

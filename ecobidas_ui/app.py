@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from flask import Flask, flash, render_template
+from flask import Flask, abort, render_template
 
 from ecobidas_ui import auth, db, generate, protocols, public
 from ecobidas_ui._version import version
@@ -35,8 +35,7 @@ def create_app(config_object="ecobidas_ui.settings"):
 
     @app.route("/export")
     def export() -> str:
-        flash("'Export' not implemented yet!", category="warning")
-        return render_template("public/index.html")
+        abort(501)
 
     return app
 
@@ -68,7 +67,7 @@ def register_errorhandlers(app):
         error_code = getattr(error, "code", 500)
         return render_template(f"{error_code}.html"), error_code
 
-    for errcode in [401, 404, 405, 500]:
+    for errcode in [401, 404, 405, 500, 501]:
         app.errorhandler(errcode)(render_error)
     return None
 

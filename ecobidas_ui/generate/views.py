@@ -6,12 +6,14 @@ from pathlib import Path
 from flask import Blueprint, current_app, render_template, send_from_directory
 from markdownify import markdownify as md
 
+from ecobidas_ui.protocols.utils import local_cobidas_schema
+
 blueprint = Blueprint("generate", __name__, url_prefix="/generate")
 
 
 def dummmy_data():
     with open(
-        "/home/remi/github/cobidas_chckls/inputs/bids_template/task-auditoryLocalizer_bold.json"
+        current_app.config["ROOT_DIR"] / ".." / "inputs" / "bids_template" / "task-auditoryLocalizer_bold.json"
     ) as f:
         data = json.load(f)
     return data

@@ -86,6 +86,8 @@ def activity_post(protocol_name, activity_name) -> str:
 
     activities, activity, items = prep_activity_page(protocol_name, activity_name)
 
+    base_nb_items = sum(bool(i["visibility"]) for i in items.values())
+
     upload_participants_form, extra_form = generate_extra_forms(protocol_name, activity_name)
 
     form = generate_form(items=items, prefix=activity_name)
@@ -183,6 +185,12 @@ def activity_post(protocol_name, activity_name) -> str:
 
     completed_items = sum(bool(i["is_answered"]) for i in items.values())
     nb_items = sum(bool(i["visibility"]) for i in items.values())
+
+    flash("Your data was saved.", category="success")
+
+    if nb_items > base_nb_items:
+            # update so it gets the right number and the names of items added
+            flash(f"{nb_items - base_nb_items}  items were added.", category="success")
 
     return render_template(
         "protocol.html",
