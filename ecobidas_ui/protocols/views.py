@@ -197,6 +197,10 @@ def activity_post(protocol_name, activity_name) -> str:
 
     elif form.submit.data and form.is_submitted():
 
+        if "messages" in activity:
+            for message in validate_activity(activity["messages"], items, form.data):
+                flash(message, category="danger")
+
         form, items = update_items_and_forms(form.data, items, activity_name)
 
     completed_items = sum(bool(i["is_answered"]) for i in items.values())
@@ -326,3 +330,39 @@ def update_visibility(items: dict[str, Any], form_data):
                 items[item]["visibility"] = False
 
     return items
+
+
+def validate_activity(
+    activity_messages: list[dict[str, str]], items: dict[str, Any], form_data
+) -> list[str]:
+
+    if not activity_messages:
+        return []
+
+    # assign response to a variable with same name as the item it comees from
+    for key, value in form_data.items():
+        if key not in items:
+            continue
+        if not value:
+            value = None
+        string_to_eval = f"{key} = {value}"
+        try:
+            exec(string_to_eval)
+        except Exception as exc:
+            current_app.logger.error(
+                f"Could not execute '{string_to_eval}' as a valid python statement.\n{exc}"
+            )
+
+    # check if any validation error needs to be shown
+    messages_to_print = []
+    for message in activity_messages:
+        try:
+            if eval(message["jsExpression"]):
+                messages_to_print.append(message["message"])
+        except Exception as exc:
+            # actually log this
+            current_app.logger.error(
+                f"Could not evaluate '{message['jsExpression']}' as a valid python expression.\n{exc}"
+            )
+
+    return messages_to_print

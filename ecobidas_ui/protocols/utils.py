@@ -172,6 +172,7 @@ def get_items_for_activity(activity_file):
             "<details class='text-secondary'><summary>Details</summary>"
             "<ul>"
             f"<li>item name: {item_data.get('description')}</li>"
+            f"<li>version: {item_data.get('version')}</li>"
             "</ul>"
             "</details>"
         )
