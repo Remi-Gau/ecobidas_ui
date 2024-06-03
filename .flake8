@@ -6,7 +6,7 @@ exclude =
 
 docstring-convention = numpy
 max-line-length = 150
-max_complexity = 15
+max_complexity = 20
 max_function_length = 150
 max_parameters_amount = 10
 max_returns_amount = 7

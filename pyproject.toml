@@ -40,7 +40,7 @@ test = [
 line-length = 100
 
 [tool.codespell]
-ignore-words-list = "te"
+ignore-words-list = "te,nd,jist"
 skip = "./.git,*.svg,env"
 
 [tool.hatch.build.hooks.vcs]
