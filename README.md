@@ -2,8 +2,8 @@
 
 This contains the code for a UI to run the eCOBIDAS checklist using Flask.
 
-<img src="./images/import-from-bids.png" width=500px>
 <img src="./images/landing.png" width=500px>
+<img src="./images/import-from-bids.png" width=500px>
 <img src="./images/report.png" width=500px>
 
 ## Install
