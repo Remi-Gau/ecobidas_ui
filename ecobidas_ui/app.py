@@ -2,7 +2,8 @@ import logging
 import sys
 from pathlib import Path
 
-from flask import Flask, abort, render_template
+from flask import Flask, abort, g, render_template, request
+from flask_babel import Babel
 
 from ecobidas_ui import auth, db, generate, protocols, public
 from ecobidas_ui._version import version
@@ -36,6 +37,15 @@ def create_app(config_object="ecobidas_ui.settings"):
     @app.route("/export")
     def export() -> str:
         abort(501)
+
+    babel = Babel()
+
+    def get_locale():
+        if not g.get("lang_code", None):
+            g.lang_code = request.accept_languages.best_match(app.config["LANGUAGES"])
+        return g.lang_code
+
+    babel.init_app(app, locale_selector=get_locale)
 
     return app
 

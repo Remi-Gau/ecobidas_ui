@@ -2,7 +2,8 @@
 
 import json
 
-from flask import Blueprint, render_template
+from flask import Blueprint, g, render_template
+from flask_babel import _, refresh
 
 from ecobidas_ui.settings import STATIC_FOLDER
 
@@ -10,9 +11,12 @@ blueprint = Blueprint("public", __name__, static_folder="../static", template_fo
 
 
 @blueprint.route("/", methods=["GET", "POST"])
+@blueprint.route("/index", methods=["GET", "POST"])
 def home():
     """Home page."""
-    return render_template("public/index.html")
+    g.lang_code = "de"
+    refresh()
+    return render_template("public/index.html", message=_("testing"))
 
 
 @blueprint.route("/faq/")
