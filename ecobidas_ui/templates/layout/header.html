@@ -1,0 +1,64 @@
+<div class="container">
+  <div class="row">
+    <div class="col-md-12 col-lg-12 mx-lg-auto mx-md-auto my-2">
+      <div
+        class="alert alert-danger rounded-0 text center m-0 d-flex justify-content-center"
+        role="alert"
+      >
+        <h4 class="m-0">
+          {{ render_icon('cone-striped') }}
+          <!--  -->
+          🚧 This website is under construction !!!!!! 🚧
+          <!--  -->
+          {{ render_icon('cone-striped') }}
+        </h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+<!--  -->
+{% if messages %}
+<!--  -->
+{% for category, message in messages %}
+<section class="content">
+  <div class="container">
+    <div
+      class="alert alert-{{ category }} alert-link alert-dismissible fade show"
+      role="alert"
+    >
+      <div class="d-flex align-items-center">
+        {% if category == 'success' %}
+        <!--  -->
+        {{ render_icon('check-circle-fill') }}
+        <!--  -->
+        {% elif category == 'warning' %}
+        <!--  -->
+        {{ render_icon('exclamation-triangle-fill') }}
+        <!--  -->
+        {% elif category == 'danger' %}
+        <!--  -->
+        {{ render_icon('x-circle-fill') }}
+        <!--  -->
+        {% else %}
+        <!--  -->
+        {{ render_icon('info-circle-fill') }}
+        <!--  -->
+        {% endif %}
+        <div class="mx-3">{{ message }}</div>
+      </div>
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
+    </div>
+  </div>
+</section>
+{% endfor %}
+<!--  -->
+{% endif %}
+<!--  -->
+{% endwith %}

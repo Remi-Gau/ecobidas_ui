@@ -2,7 +2,7 @@ import logging
 import sys
 from pathlib import Path
 
-from flask import Flask, abort, g, render_template, request
+from flask import Flask, abort, g, redirect, render_template, request, url_for
 from flask_babel import Babel
 
 from ecobidas_ui import auth, db, generate, protocols, public
@@ -30,14 +30,6 @@ def create_app(config_object="ecobidas_ui.settings"):
     register_errorhandlers(app)
     configure_logger(app)
 
-    @app.context_processor
-    def inject_version():
-        return dict(version=version)
-
-    @app.route("/export")
-    def export() -> str:
-        abort(501)
-
     babel = Babel()
 
     def get_locale():
@@ -46,6 +38,19 @@ def create_app(config_object="ecobidas_ui.settings"):
         return g.lang_code
 
     babel.init_app(app, locale_selector=get_locale)
+
+    @app.context_processor
+    def inject_version():
+        return dict(version=version)
+
+    @app.route("/export")
+    def export() -> str:
+        abort(501)
+
+    @app.route("/")
+    def home():
+        g.lang_code = request.accept_languages.best_match(app.config["LANGUAGES"])
+        return redirect(url_for("public.index"))
 
     return app
 
@@ -74,6 +79,7 @@ def register_errorhandlers(app):
     def render_error(error):
         """Render error template."""
         # If a HTTPException, pull the `code` attribute; default to 500
+        g.lang_code = request.accept_languages.best_match(app.config["LANGUAGES"])
         error_code = getattr(error, "code", 500)
         return render_template(f"{error_code}.html"), error_code
 

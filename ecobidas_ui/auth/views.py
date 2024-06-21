@@ -6,7 +6,17 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from ecobidas_ui.auth.forms import LoginForm, RegisterForm
 from ecobidas_ui.db import get_db
 
-blueprint = Blueprint("auth", __name__, url_prefix="/auth", template_folder="templates")
+blueprint = Blueprint("auth", __name__, url_prefix="/<lang_code>/auth", template_folder="templates")
+
+
+@blueprint.url_defaults
+def add_language_code(endpoint, values):
+    values.setdefault("lang_code", g.lang_code)
+
+
+@blueprint.url_value_preprocessor
+def pull_lang_code(endpoint, values):
+    g.lang_code = values.pop("lang_code")
 
 
 @blueprint.route("/register", methods=("GET", "POST"))

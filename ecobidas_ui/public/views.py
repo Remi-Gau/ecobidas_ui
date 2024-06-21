@@ -2,20 +2,50 @@
 
 import json
 
-from flask import Blueprint, g, render_template
-from flask_babel import _, refresh
+from flask import Blueprint, abort, current_app, g, redirect, render_template, request, url_for
+from flask_babel import _
 
 from ecobidas_ui.settings import STATIC_FOLDER
 
-blueprint = Blueprint("public", __name__, static_folder="../static", template_folder="templates")
+blueprint = Blueprint(
+    "public",
+    __name__,
+    static_folder="../static",
+    template_folder="templates",
+    url_prefix="/<lang_code>",
+)
 
 
-@blueprint.route("/", methods=["GET", "POST"])
+@blueprint.url_defaults
+def add_language_code(endpoint, values):
+    values.setdefault("lang_code", g.lang_code)
+
+
+@blueprint.url_value_preprocessor
+def pull_lang_code(endpoint, values):
+    g.lang_code = values.pop("lang_code")
+
+
+@blueprint.before_request
+def before_request():
+    print(request.full_path)
+    if g.lang_code not in current_app.config["LANGUAGES"]:
+        adapter = current_app.url_map.bind("")
+        try:
+            endpoint, args = adapter.match("/en" + request.full_path.rstrip("/ ?"))
+            return redirect(url_for(endpoint, **args), 301)
+        except:  # noqa
+            abort(404)
+
+    dfl = request.url_rule.defaults
+    if "lang_code" in dfl:
+        if dfl["lang_code"] != request.full_path.split("/")[1]:
+            abort(404)
+
+
 @blueprint.route("/index", methods=["GET", "POST"])
-def home():
+def index():
     """Home page."""
-    g.lang_code = "de"
-    refresh()
     return render_template("public/index.html", message=_("testing"))
 
 
