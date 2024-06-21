@@ -12,6 +12,10 @@ from ecobidas_ui.extensions import bootstrap, csrf_protect
 from ecobidas_ui.initializers.assets import init_assets
 
 
+def app():
+    create_app()
+
+
 def create_app(config_object="ecobidas_ui.settings"):
 
     # create and configure the app
