@@ -25,12 +25,13 @@ from ecobidas_ui.protocols.forms import (
     validate_participants_tsv,
 )
 from ecobidas_ui.protocols.utils import (
-    LANG,
     activity_in_protocol,
     allowed_file,
     extract_values_participants,
     get_landing_page,
     get_nav_bar_content,
+    get_preamble,
+    get_prefLabel,
     get_protocol,
     prep_activity_page,
     protocol_url,
@@ -88,7 +89,7 @@ def protocol(protocol_name: str) -> str:
     return render_template(
         "protocols/protocol.html",
         protocol_pref_label=protocol_name,
-        protocol_preamble=protocol_content["preamble"][LANG],
+        protocol_preamble=get_preamble(protocol_content),
         activities=activities,
         landing_page=landing_page,
         show_export_button=show_export_button(protocol_name),
@@ -119,8 +120,8 @@ def activity_get(protocol_name, activity_name) -> str:
     return render_template(
         "protocols/protocol.html",
         protocol_pref_label=protocol_name,
-        activity_pref_label=activity["prefLabel"][LANG],
-        activity_preamble=activity["preamble"][LANG],
+        activity_pref_label=get_prefLabel(activity),
+        activity_preamble=get_preamble(activity),
         activities=activities,
         form=form,
         nb_items=nb_items,
@@ -255,8 +256,8 @@ def activity_post(protocol_name, activity_name) -> str:
     return render_template(
         "protocols/protocol.html",
         protocol_pref_label=protocol_name,
-        activity_pref_label=activity["prefLabel"][LANG],
-        activity_preamble=activity["preamble"][LANG],
+        activity_pref_label=get_prefLabel(activity),
+        activity_preamble=get_preamble(activity),
         activities=activities,
         form=form,
         nb_items=nb_items,

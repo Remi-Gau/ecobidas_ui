@@ -84,7 +84,7 @@ def get_nav_bar_content(
     ]
     activities.extend(
         {
-            "name": activity["prefLabel"][LANG],
+            "name": get_prefLabel(activity),
             "link": url_for(
                 "protocol.activity_get",
                 protocol_name=protocol_name,
@@ -107,6 +107,18 @@ def get_nav_bar_content(
                 activity["class"] = "nav-link active"
 
     return activities
+
+
+def get_translation(obj, key):
+    return obj[key][g.lang_code] if g.lang_code in obj[key] else obj[key][LANG]
+
+
+def get_preamble(obj):
+    return get_translation(obj, "preamble")
+
+
+def get_prefLabel(obj):
+    return get_translation(obj, "prefLabel")
 
 
 def update_format(items: dict[str, Any], form_data):
@@ -141,7 +153,7 @@ def prep_activity_page(protocol_name: str, activity_name: str):
     with open(activity_file) as f:
         activity = json.load(f)
 
-    activities = get_nav_bar_content(protocol_name, activity["prefLabel"][LANG])
+    activities = get_nav_bar_content(protocol_name, get_prefLabel(activity))
 
     items = get_items_for_activity(activity_file)
 
@@ -172,7 +184,7 @@ def get_items_for_activity(activity_file):
             "is_answered": False,
         }
 
-        tmp["question"] = f"{i + 1} - {item_data['question'][LANG]}"
+        tmp["question"] = f"{i + 1} - {get_translation(item_data, 'question')}"
         tmp["input_type"] = item_data["ui"]["inputType"]
 
         tmp["description"] = (
@@ -185,7 +197,7 @@ def get_items_for_activity(activity_file):
         )
         details = ""
         if item_data.get("details"):
-            details = item_data["details"].get(LANG)
+            details = get_translation(item_data, "details")
             tmp["description"] = f"{details}<br>{tmp['description']}"
 
         if item["isVis"] == 1:
@@ -196,7 +208,7 @@ def get_items_for_activity(activity_file):
 
         if response_options := item_data.get("responseOptions"):
             try:
-                unit = f"({response_options['unitOptions'][0]['prefLabel'][LANG]})"
+                unit = get_prefLabel(response_options["unitOptions"][0])
             except KeyError:
                 unit = ""
             tmp["unit"] = unit
@@ -246,7 +258,7 @@ def get_choices(item_data):
             else:
                 choices = query_choices(choices)
             choices = choices["choices"]
-        choices = [(x["value"], x["name"][LANG]) for x in choices]
+        choices = [(x["value"], get_translation(x, "name")) for x in choices]
     except KeyError:
         choices = {}
     return choices

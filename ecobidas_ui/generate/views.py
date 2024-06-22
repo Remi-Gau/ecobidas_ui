@@ -37,7 +37,7 @@ def pull_lang_code(endpoint, values):
 def generate():
     flash(
         """This page was generated using dummy data.
-        In the final version the content of this page should adapt to the valuesyou inputted in the checklist.""",
+        In the final version the content of this page should adapt to the values you inputted in the checklist.""",
         category="warning",
     )
     return render_template("generate/index.html", **dummmy_data())

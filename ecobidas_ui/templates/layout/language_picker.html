@@ -18,33 +18,24 @@
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
       {% for lang in config.LANGUAGES %} {% set tmp = config.LANGUAGES[lang] %}
       <li>
+        <!-- prettier-ignore -->
         <a
-          class="dropdown-item py-0"
-          {%
-          if
-          request.endpoint=""
-          ="protocol.protocol"
-          %}
-          href="{{ url_for('protocol.protocol', protocol_name=request.view_args['protocol_name'], lang_code=lang) }}"
-          {%
-          elif
-          request.endpoint=""
-          ="protocol.activity_get"
-          %}
-          href="{{ url_for('protocol.activity_get',
-                            protocol_name=request.view_args['protocol_name'],
-                            activity_name=request.view_args['activity_name'],
-                            lang_code=lang) }}"
-          {%
-          else
-          %}
-          href="{{ url_for(request.endpoint, lang_code=lang) }}"
-          {%
-          endif%}
+        class="dropdown-item py-0"
+          {% if request.endpoint=="protocol.protocol" %}
+            href="{{ url_for('protocol.protocol', protocol_name=request.view_args['protocol_name'], lang_code=lang) }}"
+          {% elif request.endpoint=="protocol.activity_get" %}
+            href="{{ url_for('protocol.activity_get',
+                              protocol_name=request.view_args['protocol_name'],
+                              activity_name=request.view_args['activity_name'],
+                              lang_code=lang) }}"
+          {% else %}
+            href="{{ url_for(request.endpoint, lang_code=lang) }}"
+          {% endif%}
           ><span class="flag-icon flag-icon-{{ tmp['flag_code'] }}"
-            ><p class="mx-5">{{ tmp['display_name'] }}</p></span
-          ></a
-        >
+          ><p class="mx-5">{{ tmp['display_name'] }}</p></span
+          >
+        </a>
+        <!-- prettier-ignore -->
       </li>
       {% endfor %}
     </ul>
