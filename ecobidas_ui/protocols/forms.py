@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 import pandas as pd
+from flask_babel import _
 from flask_wtf import FlaskForm
 from flask_wtf.file import FileAllowed, FileField, FileRequired, MultipleFileField
 from markupsafe import Markup
@@ -22,13 +23,13 @@ from wtforms.validators import DataRequired, NumberRange
 
 class UploadParticipantsForm(FlaskForm):
     participants = MultipleFileField(
-        "Upload participants.tsv and participants.json",
+        _("Upload participants.tsv and participants.json"),
         validators=[
             FileRequired(),
-            FileAllowed(["tsv", "json"], "File must be '.tsv' and '.json' files."),
+            FileAllowed(["tsv", "json"], _("File must be '.tsv' and '.json' files.")),
         ],
     )
-    submit_upload = SubmitField("Upload")
+    submit_upload = SubmitField(_("Upload"))
 
 
 def validate_participants_json(participants_json: Path | str | dict):
@@ -49,10 +50,10 @@ def validate_participants_tsv(participants_tsv: Path | pd.DataFrame):
 
 class UploadBoldJsonForm(FlaskForm):
     bold_json = FileField(
-        "Upload bold.json",
-        validators=[FileRequired(), FileAllowed(["json"], "The file must be a '.json' file.")],
+        _("Upload bold.json"),
+        validators=[FileRequired(), FileAllowed(["json"], _("The file must be a '.json' file."))],
     )
-    submit_bold_json = SubmitField("Upload")
+    submit_bold_json = SubmitField(_("Upload"))
 
 
 def generate_form(items=None, prefix=None, obj=None) -> FlaskForm:
@@ -167,7 +168,7 @@ def generate_form(items=None, prefix=None, obj=None) -> FlaskForm:
 
             form = add_choice_based_items(form, prefix, item_name, item)
 
-    setattr(form, "submit", SubmitField("Save"))  # noqa B010
+    setattr(form, "submit", SubmitField(_("Save")))  # noqa B010
 
     return form(obj=obj)
 

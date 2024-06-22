@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 
 from flask import Blueprint, current_app, flash, g, render_template, send_from_directory
+from flask_babel import _
 from markdownify import markdownify as md
 
 blueprint = Blueprint(
@@ -36,8 +37,10 @@ def pull_lang_code(endpoint, values):
 @blueprint.route("/", methods=["GET", "POST"])
 def generate():
     flash(
-        """This page was generated using dummy data.
-        In the final version the content of this page should adapt to the values you inputted in the checklist.""",
+        _(
+            """This page was generated using dummy data.
+        In the final version the content of this page should adapt to the values you inputted in the checklist."""
+        ),
         category="warning",
     )
     return render_template("generate/index.html", **dummmy_data())

@@ -5,5 +5,7 @@
 {% block title %}404 Error - Page Not Found{% endblock %}
 <!--  -->
 {% block error %}
-<p class="my-2">Sorry, that page {{ request.full_path }} doesn't exist.</p>
+<p class="my-2">
+  {{_('Sorry, that page ')}} request.full_path {{_(' does not exist.')}}
+</p>
 {% endblock %}

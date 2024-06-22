@@ -3,7 +3,7 @@ import sys
 from pathlib import Path
 
 from flask import Flask, abort, flash, g, redirect, render_template, request, url_for
-from flask_babel import Babel
+from flask_babel import Babel, _
 
 from ecobidas_ui import auth, db, generate, protocols, public
 from ecobidas_ui._version import version
@@ -45,7 +45,7 @@ def create_app(config_object="ecobidas_ui.settings"):
 
     @app.route("/export")
     def export() -> str:
-        flash("Export not implemented yet.", category="warning")
+        flash(_("Export not implemented yet."), category="warning")
         abort(501)
 
     @app.route("/")

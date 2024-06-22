@@ -1,4 +1,4 @@
-# German translations for PROJECT.
+# French translations for PROJECT.
 # Copyright (C) 2024 ORGANIZATION
 # This file is distributed under the same license as the PROJECT project.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2024.
@@ -8,20 +8,20 @@ msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
 "POT-Creation-Date: 2024-06-22 14:49+0200\n"
-"PO-Revision-Date: 2024-06-22 14:53+0200\n"
+"PO-Revision-Date: 2024-06-22 14:50+0200\n"
 "Last-Translator: \n"
-"Language-Team: de <LL@li.org>\n"
-"Language: de\n"
+"Language-Team: fr <LL@li.org>\n"
+"Language: fr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "Generated-By: Babel 2.13.0\n"
 "X-Generator: Poedit 3.4.3\n"
 
 #: ecobidas_ui/app.py:49
 msgid "Export not implemented yet."
-msgstr "Export noch nicht implementiert."
+msgstr "L'exportation n'a pas encore été implémentée."
 
 #: ecobidas_ui/generate/views.py:40
 msgid ""
@@ -29,54 +29,54 @@ msgid ""
 "        In the final version the content of this page should adapt to "
 "the values you inputted in the checklist."
 msgstr ""
-"Diese Seite wurde mit Dummy-Daten erstellt.\n"
-"        In der endgültigen Version sollte sich der Inhalt dieser Seite "
-"an die Werte anpassen, die Sie in die Checkliste eingegeben haben."
+"Cette page a été générée en utilisant des données fictives.\n"
+"        Dans la version finale, le contenu de cette page devrait "
+"s'adapter aux valeurs que vous avez saisies dans la liste de contrôle."
 
 #: ecobidas_ui/generate/templates/generate/index.html:12
 msgid "Download as markdown"
-msgstr "Herunterladen als Markdown"
+msgstr "Télécharger au format markdown"
 
 #: ecobidas_ui/protocols/forms.py:26
 msgid "Upload participants.tsv and participants.json"
-msgstr "Teilnehmer.tsv und Teilnehmer.json hochladen"
+msgstr "Télécharger les fichiers participants.tsv et participants.json"
 
 #: ecobidas_ui/protocols/forms.py:29
 msgid "File must be '.tsv' and '.json' files."
-msgstr "Die Dateien müssen '.tsv' und '.json' sein."
+msgstr "Les fichiers doivent être des fichiers '.tsv' et '.json'."
 
 #: ecobidas_ui/protocols/forms.py:32 ecobidas_ui/protocols/forms.py:56
 msgid "Upload"
-msgstr "Hochladen"
+msgstr "Envoyer"
 
 #: ecobidas_ui/protocols/forms.py:53
 msgid "Upload bold.json"
-msgstr "Bold.json hochladen"
+msgstr "Télécharger le fichier bold.json"
 
 #: ecobidas_ui/protocols/forms.py:54
 msgid "The file must be a '.json' file."
-msgstr "Die Datei muss eine \".json\"-Datei sein."
+msgstr "Le fichier doit être un fichier '.json'."
 
 #: ecobidas_ui/protocols/forms.py:171
 msgid "Save"
-msgstr "speichern"
+msgstr "Sauver"
 
 #: ecobidas_ui/public/templates/public/index.html:9
 msgid "Welcome to eCOBIDAS"
-msgstr "Willkommen bei eCOBIDAS"
+msgstr "Bienvenue sur eCOBIDAS"
 
 #: ecobidas_ui/templates/404.html:8
 msgid "Sorry, that page "
-msgstr ""
+msgstr "Désolé, cette page"
 
 #: ecobidas_ui/templates/404.html:8
 msgid " does not exist."
-msgstr ""
+msgstr " n'existe pas."
 
 #: ecobidas_ui/templates/layout/header.html:11
 msgid "This website is under construction"
-msgstr ""
+msgstr "Ce site est en cours de construction"
 
 #: ecobidas_ui/templates/layout/nav.html:34
 msgid "Other checklists"
-msgstr ""
+msgstr "Autres checklists"
