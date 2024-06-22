@@ -6,7 +6,7 @@ from typing import Any
 
 import pandas as pd
 import requests
-from flask import flash
+from flask import flash, g, url_for
 from markupsafe import escape
 from rich import print
 
@@ -85,14 +85,21 @@ def get_nav_bar_content(
     activities.extend(
         {
             "name": activity["prefLabel"][LANG],
-            "link": f"/protocol/{protocol_name}/{activity['variableName']}",
+            "link": url_for(
+                "protocol.activity_get",
+                protocol_name=protocol_name,
+                lang_code=g.lang_code,
+                activity_name=activity["variableName"],
+            ),
             "class": "nav-link",
         }
         for activity in properties
     )
 
     if activity_name:
-        activities[0]["link"] = f"/protocol/{protocol_name}"
+        activities[0]["link"] = url_for(
+            "protocol.protocol", protocol_name=protocol_name, lang_code=g.lang_code
+        )
         activities[0]["class"] = "nav-link"
         for activity in activities:
             if activity["name"] == activity_name:

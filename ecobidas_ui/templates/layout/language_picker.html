@@ -3,10 +3,10 @@
   rel="stylesheet"
 />
 
-<ul class="navbar-nav me-auto mb-2 mb-lg-0">
+<ul class="navbar-nav my-1 mx-3">
   <li class="nav-item dropdown">
     <a
-      class="nav-link dropdown-toggle"
+      class="nav-link dropdown-toggle active"
       href="#"
       id="navbarDropdown"
       role="button"
@@ -16,20 +16,37 @@
       Lang
     </a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+      {% for lang in config.LANGUAGES %} {% set tmp = config.LANGUAGES[lang] %}
       <li>
         <a
-          class="dropdown-item"
-          href="{{ url_for(request.endpoint, lang_code='fr') }}"
-          ><span class="flag-icon flag-icon-fr"></span>Français</a
+          class="dropdown-item py-0"
+          {%
+          if
+          request.endpoint=""
+          ="protocol.protocol"
+          %}
+          href="{{ url_for('protocol.protocol', protocol_name=request.view_args['protocol_name'], lang_code=lang) }}"
+          {%
+          elif
+          request.endpoint=""
+          ="protocol.activity_get"
+          %}
+          href="{{ url_for('protocol.activity_get',
+                            protocol_name=request.view_args['protocol_name'],
+                            activity_name=request.view_args['activity_name'],
+                            lang_code=lang) }}"
+          {%
+          else
+          %}
+          href="{{ url_for(request.endpoint, lang_code=lang) }}"
+          {%
+          endif%}
+          ><span class="flag-icon flag-icon-{{ tmp['flag_code'] }}"
+            ><p class="mx-5">{{ tmp['display_name'] }}</p></span
+          ></a
         >
       </li>
-      <li>
-        <a
-          class="dropdown-item"
-          href="{{ url_for(request.endpoint, lang_code='en') }}"
-          ><span class="flag-icon flag-icon-us"></span>English</a
-        >
-      </li>
+      {% endfor %}
     </ul>
   </li>
 </ul>

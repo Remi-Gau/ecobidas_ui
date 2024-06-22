@@ -2,7 +2,17 @@ import json
 from pathlib import Path
 from typing import Any
 
-from flask import Blueprint, abort, current_app, flash, redirect, render_template, request
+from flask import (
+    Blueprint,
+    abort,
+    current_app,
+    flash,
+    g,
+    redirect,
+    render_template,
+    request,
+    url_for,
+)
 from flask_wtf import FlaskForm
 from markupsafe import Markup
 from werkzeug.utils import secure_filename
@@ -29,13 +39,43 @@ from ecobidas_ui.protocols.utils import (
 
 KNWON_PROTOCOLS = ["neurovault", "eyetracking", "pet", "cobidas", "reexecution"]
 
-blueprint = Blueprint("protocol", __name__, url_prefix="/protocol", template_folder="templates")
+blueprint = Blueprint("protocol", __name__, template_folder="templates")
 
 
-@blueprint.route("/<protocol_name>", methods=["GET", "POST"])
+@blueprint.url_defaults
+def add_language_code(endpoint, values):
+    values.setdefault("lang_code", g.lang_code)
+    values.setdefault("protocol_name", "cobidas")
+
+
+@blueprint.url_value_preprocessor
+def pull_lang_code(endpoint, values):
+    g.lang_code = values.pop("lang_code", None)
+
+
+@blueprint.before_request
+def before_request():
+    if g.lang_code not in current_app.config["LANGUAGES"]:
+        adapter = current_app.url_map.bind("")
+        try:
+            endpoint, args = adapter.match("/en" + request.full_path.rstrip("/ ?"))
+            return redirect(url_for(endpoint, **args), 301)
+        except:  # noqa
+            flash("unknown language", category="warning")
+            abort(404)
+
+    dfl = request.url_rule.defaults
+    if "lang_code" in dfl:
+        if dfl["lang_code"] != request.full_path.split("/")[1]:
+            flash("unknown language", category="warning")
+            abort(404)
+
+
+@blueprint.route("/<lang_code>/protocol/<protocol_name>", methods=["GET", "POST"])
 def protocol(protocol_name: str) -> str:
 
     if protocol_name not in KNWON_PROTOCOLS:
+        flash("unknown protocol_name", category="warning")
         abort(404)
 
     protocol_content = get_protocol(protocol_name)
@@ -59,7 +99,7 @@ def show_export_button(protocol_name):
     return protocol_name in ["neurovault", "cobidas"]
 
 
-@blueprint.get("/<protocol_name>/<activity_name>")
+@blueprint.get("/<lang_code>/protocol/<protocol_name>/<activity_name>")
 def activity_get(protocol_name, activity_name) -> str:
 
     if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(
@@ -91,7 +131,7 @@ def activity_get(protocol_name, activity_name) -> str:
     )
 
 
-@blueprint.post("/<protocol_name>/<activity_name>")
+@blueprint.post("/<lang_code>/protocol/<protocol_name>/<activity_name>")
 def activity_post(protocol_name, activity_name) -> str:
 
     if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(

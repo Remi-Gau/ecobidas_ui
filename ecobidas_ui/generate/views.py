@@ -3,10 +3,12 @@
 import json
 from pathlib import Path
 
-from flask import Blueprint, current_app, flash, render_template, send_from_directory
+from flask import Blueprint, current_app, flash, g, render_template, send_from_directory
 from markdownify import markdownify as md
 
-blueprint = Blueprint("generate", __name__, url_prefix="/generate", template_folder="templates")
+blueprint = Blueprint(
+    "generate", __name__, url_prefix="/<lang_code>/generate", template_folder="templates"
+)
 
 
 def dummmy_data():
@@ -19,6 +21,16 @@ def dummmy_data():
     ) as f:
         data = json.load(f)
     return data
+
+
+@blueprint.url_defaults
+def add_language_code(endpoint, values):
+    values.setdefault("lang_code", g.lang_code)
+
+
+@blueprint.url_value_preprocessor
+def pull_lang_code(endpoint, values):
+    g.lang_code = values.pop("lang_code")
 
 
 @blueprint.route("/", methods=["GET", "POST"])

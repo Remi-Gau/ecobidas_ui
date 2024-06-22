@@ -3,9 +3,11 @@
 import json
 
 from flask import Blueprint, abort, current_app, g, redirect, render_template, request, url_for
-from flask_babel import _
 
 from ecobidas_ui.settings import STATIC_FOLDER
+
+# from flask_babel import _
+
 
 blueprint = Blueprint(
     "public",
@@ -28,7 +30,6 @@ def pull_lang_code(endpoint, values):
 
 @blueprint.before_request
 def before_request():
-    print(request.full_path)
     if g.lang_code not in current_app.config["LANGUAGES"]:
         adapter = current_app.url_map.bind("")
         try:
@@ -46,7 +47,7 @@ def before_request():
 @blueprint.route("/index", methods=["GET", "POST"])
 def index():
     """Home page."""
-    return render_template("public/index.html", message=_("testing"))
+    return render_template("public/index.html")
 
 
 @blueprint.route("/faq/")
