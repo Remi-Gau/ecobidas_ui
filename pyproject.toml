@@ -5,6 +5,7 @@ requires = ["hatchling", "hatch-vcs"]
 [project]
 authors = [{name = "Remi Gau"}]
 dependencies = [
+    "Flask-Babel",
     "flask",
     "Flask-WTF",
     "Flask-Assets",
