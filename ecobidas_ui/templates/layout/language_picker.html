@@ -22,9 +22,9 @@
         <a
         class="dropdown-item py-0"
           {% if request.endpoint=="protocol.protocol" %}
-            href="{{ url_for('protocol.protocol', protocol_name=request.view_args['protocol_name'], lang_code=lang) }}"
-          {% elif request.endpoint=="protocol.activity_get" %}
-            href="{{ url_for('protocol.activity_get',
+            href="{{ url_for(request.endpoint, protocol_name=request.view_args['protocol_name'], lang_code=lang) }}"
+          {% elif request.endpoint=="protocol.activity_get" or request.endpoint=="protocol.activity_post" %}
+            href="{{ url_for(request.endpoint,
                               protocol_name=request.view_args['protocol_name'],
                               activity_name=request.view_args['activity_name'],
                               lang_code=lang) }}"

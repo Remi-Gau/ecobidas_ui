@@ -41,7 +41,7 @@ line-length = 100
 
 [tool.codespell]
 ignore-words-list = "te,nd,jist"
-skip = "./.git,*.svg,env,ecobidas_ui/translations/de/**"
+skip = "./.git,*.svg,env,ecobidas_ui/translations/**"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "ecobidas_ui/_version.py"

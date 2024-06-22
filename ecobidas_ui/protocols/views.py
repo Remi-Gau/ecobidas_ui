@@ -13,6 +13,7 @@ from flask import (
     request,
     url_for,
 )
+from flask_babel import _
 from flask_wtf import FlaskForm
 from markupsafe import Markup
 from werkzeug.utils import secure_filename
@@ -76,7 +77,7 @@ def before_request():
 def protocol(protocol_name: str) -> str:
 
     if protocol_name not in KNWON_PROTOCOLS:
-        flash("unknown protocol_name", category="warning")
+        flash(_("unknown protocol_name"), category="warning")
         abort(404)
 
     protocol_content = get_protocol(protocol_name)
@@ -171,10 +172,11 @@ def activity_post(protocol_name, activity_name) -> str:
 
         tsv_file = Path(current_app.config["UPLOAD_FOLDER"]) / "participants.tsv"
         if not validate_participants_tsv(tsv_file):
+            message = _(
+                "The 'participants.tsv' does not seem to be valid: 'participant_id' column is missing."
+            )
             flash(
-                Markup(
-                    "<p>The 'participants.tsv' does not seem to be valid: 'participant_id' column is missing.</p>"
-                ),
+                Markup(f"<p>{message}</p>"),
                 category="warning",
             )
             return redirect(request.url)
@@ -183,10 +185,13 @@ def activity_post(protocol_name, activity_name) -> str:
         if not validate_participants_json(json_file):
             flash(
                 Markup(
-                    "<p>The 'participants.json' was not annotated. "
-                    "Annotate your data with "
-                    "the <a href='https://annotate.neurobagel.org/' target='_blank'"
-                    "class='alert-link'>neurobagel online annotation tool</a></p>"
+                    "<p>"
+                    f'{_("The 'participants.json' was not annotated. ")}'
+                    f'{_("Annotate your data with the ")}'
+                    "<a href='https://annotate.neurobagel.org/' target='_blank'"
+                    "class='alert-link'>"
+                    f'{_("neurobagel online annotation tool")}'
+                    "</a></p>"
                 ),
                 category="warning",
             )
@@ -197,11 +202,11 @@ def activity_post(protocol_name, activity_name) -> str:
         )
 
         if not fields:
-            message = "No field could be updated."
+            message = _("No field could be updated.")
             flash(message, category="warning")
             return redirect(request.url)
 
-        message = f"The following fields were updated: {fields}"
+        message = f"{_('The following fields were updated:')} {fields}"
         flash(message, category="success")
 
     if extra_form and extra_form.submit_bold_json.data and extra_form.validate_on_submit():
@@ -217,7 +222,7 @@ def activity_post(protocol_name, activity_name) -> str:
                 file.save(Path(current_app.config["UPLOAD_FOLDER"]) / filename)
                 uploaded_files.append(filename)
             else:
-                message = "No '_bold.json' was uploaded."
+                message = _("No '_bold.json' was uploaded.")
                 flash(message, category="warning")
                 return redirect(request.url)
 
@@ -229,11 +234,11 @@ def activity_post(protocol_name, activity_name) -> str:
         )
 
         if not fields:
-            message = "No field could be updated."
+            message = _("No field could be updated.")
             flash(message, category="warning")
             return redirect(request.url)
 
-        message = f"The following fields were updated: {fields}"
+        message = f"{_('The following fields were updated:')} {fields}"
         flash(message, category="success")
 
     elif form.submit.data and form.is_submitted():
@@ -247,11 +252,11 @@ def activity_post(protocol_name, activity_name) -> str:
     completed_items = sum(bool(i["is_answered"]) for i in items.values())
     nb_items = sum(bool(i["visibility"]) for i in items.values())
 
-    flash("Your data was saved.", category="success")
+    flash(_("Your data was saved."), category="success")
 
     if nb_items > base_nb_items:
         # update so it gets the right number and the names of items added
-        flash(f"{nb_items - base_nb_items}  items were added.", category="success")
+        flash(f"{nb_items - base_nb_items}  {_('items were added.')}", category="success")
 
     return render_template(
         "protocols/protocol.html",
@@ -366,7 +371,7 @@ def update_visibility(items: dict[str, Any], form_data):
             except Exception as exc:
                 # actually log this
                 current_app.logger.error(
-                    f"Could not evaluate '{eval(isVis)}' as a valid python expression.\n{exc}"
+                    f"Could not evaluate '{isVis}' as a valid python expression.\n{exc}"
                 )
                 items[item]["visibility"] = False
 

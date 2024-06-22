@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PROJECT VERSION\n"
 "Report-Msgid-Bugs-To: EMAIL@ADDRESS\n"
-"POT-Creation-Date: 2024-06-22 14:49+0200\n"
-"PO-Revision-Date: 2024-06-22 14:50+0200\n"
+"POT-Creation-Date: 2024-06-22 15:15+0200\n"
+"PO-Revision-Date: 2024-06-22 15:20+0200\n"
 "Last-Translator: \n"
 "Language-Team: fr <LL@li.org>\n"
 "Language: fr\n"
@@ -19,7 +19,7 @@ msgstr ""
 "Generated-By: Babel 2.13.0\n"
 "X-Generator: Poedit 3.4.3\n"
 
-#: ecobidas_ui/app.py:49
+#: ecobidas_ui/app.py:48
 msgid "Export not implemented yet."
 msgstr "L'exportation n'a pas encore été implémentée."
 
@@ -61,15 +61,67 @@ msgstr "Le fichier doit être un fichier '.json'."
 msgid "Save"
 msgstr "Sauver"
 
+#: ecobidas_ui/protocols/views.py:80
+msgid "unknown protocol_name"
+msgstr ""
+
+#: ecobidas_ui/protocols/views.py:175
+msgid ""
+"The 'participants.tsv' does not seem to be valid: 'participant_id' "
+"column is missing."
+msgstr ""
+"Le fichier 'participants.tsv' ne semble pas être valide: la colonne "
+"'participant_id' est manquante."
+
+#: ecobidas_ui/protocols/views.py:189
+msgid "The 'participants.json' was not annotated. "
+msgstr "Le fichier 'participants.json' n'a pas été annoté. "
+
+#: ecobidas_ui/protocols/views.py:190
+msgid "Annotate your data with the "
+msgstr ""
+
+#: ecobidas_ui/protocols/views.py:193
+msgid "neurobagel online annotation tool"
+msgstr ""
+
+#: ecobidas_ui/protocols/views.py:205 ecobidas_ui/protocols/views.py:237
+msgid "No field could be updated."
+msgstr "Aucun champ n'a été mis à jour."
+
+#: ecobidas_ui/protocols/views.py:209 ecobidas_ui/protocols/views.py:241
+msgid "The following fields were updated:"
+msgstr "Les items suivants ont été mis à jour:"
+
+#: ecobidas_ui/protocols/views.py:225
+msgid "No '_bold.json' was uploaded."
+msgstr "Aucun fichier  '_bold.json'  n'a été envoyé."
+
+#: ecobidas_ui/protocols/views.py:255
+msgid "Your data was saved."
+msgstr "Vos réponses ont été sauvegardées."
+
+#: ecobidas_ui/protocols/views.py:259
+msgid "items were added."
+msgstr "questions ont été ajoutées."
+
+#: ecobidas_ui/protocols/templates/protocols/side_nav.html:15
+msgid "Export"
+msgstr "Exporter"
+
+#: ecobidas_ui/protocols/templates/protocols/side_nav.html:22
+msgid "Generate method"
+msgstr ""
+
 #: ecobidas_ui/public/templates/public/index.html:9
 msgid "Welcome to eCOBIDAS"
 msgstr "Bienvenue sur eCOBIDAS"
 
-#: ecobidas_ui/templates/404.html:8
+#: ecobidas_ui/templates/404.html:9
 msgid "Sorry, that page "
-msgstr "Désolé, cette page"
+msgstr "Désolé, cette page "
 
-#: ecobidas_ui/templates/404.html:8
+#: ecobidas_ui/templates/404.html:9
 msgid " does not exist."
 msgstr " n'existe pas."
 
