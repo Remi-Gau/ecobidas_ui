@@ -186,7 +186,7 @@ def activity_post(protocol_name, activity_name) -> str:
             flash(
                 Markup(
                     "<p>"
-                    f'{_("The 'participants.json' was not annotated. ")}'
+                    f'{_("The `participants.json` was not annotated. ")}'
                     f'{_("Annotate your data with the ")}'
                     "<a href='https://annotate.neurobagel.org/' target='_blank'"
                     "class='alert-link'>"
