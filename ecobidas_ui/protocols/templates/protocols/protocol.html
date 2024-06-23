@@ -5,6 +5,7 @@
 {% block title %} eCOBIDAS - {{ protocol_pref_label }} {% endblock %}
 <!--  -->
 {% block content %}
+
 <div class="container">
   <div class="row m-2 mt-4">
     <div class="col-md-3 col-lg-3">
@@ -23,18 +24,44 @@
       <h3>{{ activity_pref_label }}</h3>
       <!--  -->
       {% if form %}
-      <p>
-        <progress
-          id="progress"
-          style="width: 100%"
-          value="{{ completed_items }}"
-          max="{{ nb_items }}"
-        ></progress>
-        <br />
-        <label style="font-size: 80%" for="progress"
-          >{{ completed_items }} / {{ nb_items }} items completed</label
+      <!--  -->
+      {% set percent_completed = (completed_items/nb_items*100)|round|int %}
+      <!--  -->
+      {% set emoji = '' %}
+      <!--  -->
+      {% set progress_bar_color = 'danger' %}
+      <!--  -->
+      {% if percent_completed > 80 %} {% set progress_bar_color = 'success' %}
+      <!--  -->
+      {% elif percent_completed > 60 %} {% set progress_bar_color = 'info' %}
+      <!--  -->
+      {% elif percent_completed > 40 %} {% set progress_bar_color = 'secondary'
+      %}
+      <!--  -->
+      {% elif percent_completed > 20 %} {% set progress_bar_color = 'warning' %}
+      <!--  -->
+      {% endif %}
+      <!--  -->
+      {% if completed_items == nb_items %} {% set emoji = '&#127881;'|safe %} {%
+      endif %}
+      <div
+        class="progress border border-{{ progress_bar_color }} m-2"
+        role="progressbar"
+        aria-label="progress bar with label"
+        aria-valuenow="{{ completed_items }}"
+        aria-valuemin="0"
+        aria-valuemax="{{ nb_items }}"
+        style="height: 20px"
+      >
+        <div
+          class="progress-bar bg-{{ progress_bar_color }} overflow-visible text-dark"
+          style="height: 20px; width: {{ percent_completed }}%"
         >
-      </p>
+          &nbsp; {{ completed_items }} / {{ nb_items }} items completed {{ emoji
+          }}
+        </div>
+      </div>
+
       {% endif %}
       <!--  -->
       {{ activity_preamble|safe }}

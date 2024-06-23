@@ -19,7 +19,7 @@
 <section class="content">
   <div class="container">
     <div
-      class="alert alert-{{ category }} alert-link alert-dismissible fade show"
+      class="alert alert-{{ category }} alert-link alert-dismissible fade show d-flex justify-content-center"
       role="alert"
     >
       <div class="d-flex align-items-center">
@@ -40,7 +40,7 @@
         {{ render_icon('info-circle-fill') }}
         <!--  -->
         {% endif %}
-        <div class="mx-3">{{ message }}</div>
+        <div class="mx-3 text-center">{{ message }}</div>
       </div>
       <button
         type="button"
