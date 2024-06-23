@@ -13,3 +13,4 @@ install:
 	git submodule update --init --recursive && git submodule update --recursive
 	pip install -r requirements.txt
 	pip install -e .
+	pip install gunicorn
