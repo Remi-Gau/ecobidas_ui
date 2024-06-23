@@ -9,20 +9,24 @@
     {% endfor %}
     <!--  -->
     {% if show_export_button %}
-    <a href="{{ url_for('export') }}"
-      ><li class="nav-item">
-        <button type="button" class="btn btn-outline-primary my-1">
-          {{_("Export")}}
-        </button>
-      </li></a
-    >
-    <a href="{{ url_for('generate.generate') }}"
-      ><li class="nav-item">
-        <button type="button" class="btn btn-outline-primary my-1">
-          {{_("Generate method")}}
-        </button>
-      </li></a
-    >
+    <li class="nav-item">
+      <a
+        href="{{ url_for('export') }}"
+        type="button"
+        class="btn btn-outline-primary my-1"
+      >
+        {{_("Export")}}
+      </a>
+    </li>
+    <li class="nav-item">
+      <a
+        href="{{ url_for('generate.generate') }}"
+        type="button"
+        class="btn btn-outline-primary my-1"
+      >
+        {{_("Generate method")}}
+      </a>
+    </li>
     {% endif %}
   </ul>
 </div>

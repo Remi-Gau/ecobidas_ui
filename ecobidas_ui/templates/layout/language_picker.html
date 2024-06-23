@@ -8,8 +8,6 @@
     <a
       class="nav-link dropdown-toggle active"
       href="#"
-      id="navbarDropdown"
-      role="button"
       data-bs-toggle="dropdown"
       aria-expanded="false"
     >
@@ -32,8 +30,8 @@
             href="{{ url_for(request.endpoint, lang_code=lang) }}"
           {% endif%}
           ><span class="flag-icon flag-icon-{{ tmp['flag_code'] }}"
-          ><p class="mx-5">{{ tmp['display_name'] }}</p></span
-          >
+          ></span
+          ><p class="mx-0">{{ tmp['display_name'] }}</p>
         </a>
         <!-- prettier-ignore -->
       </li>
