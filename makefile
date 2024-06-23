@@ -8,3 +8,8 @@ messages.pot:
 
 # sudo snap install poedit
 # pybabel compile -d ecobidas_ui/translations
+
+install:
+	git submodule update --init --recursive && git submodule update --recursive
+	pip install -r requirements.txt
+	pip install -e .
