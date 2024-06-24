@@ -1,7 +1,7 @@
 {% extends "layout/default.html" %} {% block title %} eCOBIDAS - FAQ {% endblock
 %} {% block content %}
 <div id="page-faq" class="container">
-  <div class="row m-2 mt-4 d-flex justify-content-center">
+  <div class="row m-2 d-flex justify-content-center">
     <div class="col-lg-10 col-md-10">
       {% set count = [0] %} {% for s in data['sections'] %}
       <h3 class="my-2 mt-4">{{ s['name'] }}</h3>

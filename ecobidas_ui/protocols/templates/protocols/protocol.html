@@ -7,15 +7,15 @@
 {% block content %}
 
 <div class="container">
-  <div class="row m-2 mt-4">
-    <div class="col-md-3 col-lg-3">
-      <h2 class="my-3 text-center text-uppercase fw-bold">
+  <div class="row">
+    <div class="col-md-3">
+      <h3 class="my-3 text-center text-uppercase fw-bold">
         {{ protocol_pref_label }}
-      </h2>
+      </h3>
       {% include "protocols/side_nav.html" %}
     </div>
 
-    <div class="col-md-9 col-lg-9">
+    <div class="col-md-9">
       {% if landing_page %}
       <!--  -->
       {{ protocol_preamble|safe }}
