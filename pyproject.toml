@@ -16,7 +16,9 @@ dependencies = [
     "Flask-Caching",
     "Flask-DebugToolbar",
     "environs",
-    "markdownify"
+    "markdownify",
+    "gunicorn",
+    "mysql-connector"
 ]
 description = "UI for eCOBIDAS"
 # Version from setuptools_scm

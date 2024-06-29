@@ -43,6 +43,8 @@ flask-debugtoolbar==0.15.1
     # via ecobidas_ui (pyproject.toml)
 flask-wtf==1.2.1
     # via ecobidas_ui (pyproject.toml)
+gunicorn==22.0.0
+    # via ecobidas_ui (pyproject.toml)
 idna==3.7
     # via requests
 itsdangerous==2.2.0
@@ -73,6 +75,7 @@ numpy==1.26.4
 packaging==24.0
     # via
     #   flask-debugtoolbar
+    #   gunicorn
     #   marshmallow
 pandas==2.2.2
     # via ecobidas_ui (pyproject.toml)
