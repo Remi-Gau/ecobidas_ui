@@ -13,7 +13,6 @@ PAGES = {
     "activity_neurovault_participants": "/en/protocol/neurovault/participants",
     "activity_neurovault_mri_acquisition": "/en/protocol/neurovault/mri_acquisition",
     "generate": "/en/generate/",
-    "page_not_found": "/en/protocol/unknown",
 }
 
 
