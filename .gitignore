@@ -181,3 +181,6 @@ cython_debug/
 
 # Django static files
 staticfiles/
+
+# visual regression tests
+tests/visual/snapshot_failures/
