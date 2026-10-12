@@ -2,6 +2,20 @@
 build-backend = "hatchling.build"
 requires = ["hatchling", "hatch-vcs"]
 
+[dependency-groups]
+dev = [
+    { include-group = "test" },
+    "pre-commit",
+    "tox",
+    "tox-uv"
+]
+test = [
+    "coverage",
+    "pytest>=6.0.0",
+    "pytest-cov",
+    "pytest-django"
+]
+
 [project]
 authors = [{ name = "Remi Gau" }]
 dependencies = [
@@ -24,17 +38,6 @@ maintainers = [{ name = "Remi Gau", email = "remi.gau2@mcgill.ca" }]
 name = "ecobidas_ui"
 readme = "README.md"
 requires-python = ">=3.12"
-
-[project.optional-dependencies]
-dev = [
-    'tox'
-]
-test = [
-    "coverage",
-    "pytest>=6.0.0",
-    "pytest-cov",
-    "pytest-django"
-]
 
 [tool.black]
 line-length = 100

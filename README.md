@@ -16,17 +16,30 @@ Get the repo and all its submodules.
 git clone --recurse-submodules https://github.com/Remi-Gau/ecobidas_ui.git
 ```
 
-In a virtual environment install all the dependencies.
+Dependencies are managed with [uv](https://docs.astral.sh/uv/)
+and pinned in `uv.lock`.
+Install them (including the test and dev tools) in a virtual environment with:
 
 ```bash
-pip install -r requirements.txt
-pip install -e .
+uv sync
+```
+
+To update the pinned dependencies:
+
+```bash
+tox run -e update_dependencies  # or: uv lock --upgrade
+```
+
+## Run the tests
+
+```bash
+tox run -e test  # or: uv run pytest
 ```
 
 ## Serve locally
 
 ```bash
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 Open the link `http://127.0.0.1:8000`
@@ -37,6 +50,7 @@ Translations live in `ecobidas_ui/locale`.
 Updating and compiling them requires [gettext](https://www.gnu.org/software/gettext/).
 
 ```bash
+source .venv/bin/activate
 make messages          # extract new strings into the .po files
 make compile_messages  # compile the .po files so Django can use them
 ```
