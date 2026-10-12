@@ -3,7 +3,7 @@ build-backend = "hatchling.build"
 requires = ["hatchling", "hatch-vcs"]
 
 [project]
-authors = [{name = "Remi Gau"}]
+authors = [{ name = "Remi Gau" }]
 dependencies = [
     "Flask-Babel",
     "flask",
@@ -23,8 +23,8 @@ dependencies = [
 description = "UI for eCOBIDAS"
 # Version from setuptools_scm
 dynamic = ["version"]
-license = {text = "GPL 3.0"}
-maintainers = [{name = "Remi Gau", email = "remi.gau2@mcgill.ca"}]
+license = { text = "GPL 3.0" }
+maintainers = [{ name = "Remi Gau", email = "remi.gau2@mcgill.ca" }]
 name = "ecobidas_ui"
 readme = "README.md"
 requires-python = ">=3.10"
