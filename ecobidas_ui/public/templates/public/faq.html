@@ -1,34 +1,32 @@
-{% extends "layout/default.html" %} {% block title %} eCOBIDAS - FAQ {% endblock %} {% block content %}
+{% extends "layout/default.html" %} {% block title %}eCOBIDAS - FAQ{% endblock %} {% block content %}
 <div id="page-faq" class="container">
   <div class="row m-2 d-flex justify-content-center">
     <div class="col-lg-10 col-md-10">
       {% for s in data.sections %}
-      <h3 class="my-2 mt-4">{{ s.name }}</h3>
-      {% for item in s.questions %}
-      <div class="accordion" id="accordion-{{ s.name }}">
-        <div class="accordion-item">
-          <h2 class="accordion-header" id="header-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
-            <button
-              class="accordion-button collapsed"
-              type="button"
-              data-bs-toggle="collapse"
-              data-bs-target="#answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
-              aria-expanded="false"
-              aria-controls="answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
-            >
-              {{ item.q }}
-            </button>
-          </h2>
-          <div
-            id="answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
-            class="accordion-collapse collapse"
-            aria-labelledby="header-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
-          >
-            <div class="accordion-body">{{ item.a|safe }}</div>
+        <h3 class="my-2 mt-4">{{ s.name }}</h3>
+        {% for item in s.questions %}
+          <div class="accordion" id="accordion-{{ s.name }}">
+            <div class="accordion-item">
+              <h2 class="accordion-header"
+                  id="header-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                <button class="accordion-button collapsed"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                        aria-expanded="false"
+                        aria-controls="answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                  {{ item.q }}
+                </button>
+              </h2>
+              <div id="answer-{{ forloop.parentloop.counter }}-{{ forloop.counter }}"
+                   class="accordion-collapse collapse"
+                   aria-labelledby="header-{{ forloop.parentloop.counter }}-{{ forloop.counter }}">
+                <div class="accordion-body">{{ item.a|safe }}</div>
+              </div>
+            </div>
           </div>
-        </div>
-      </div>
-      {% endfor %} {% endfor %}
+        {% endfor %}
+      {% endfor %}
     </div>
   </div>
 </div>

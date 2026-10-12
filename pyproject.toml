@@ -7,13 +7,20 @@ dev = [
     { include-group = "test" },
     "pre-commit",
     "tox",
-    "tox-uv"
+    "tox-uv",
+    { include-group = "typecheck" }
 ]
 test = [
     "coverage",
     "pytest>=6.0.0",
     "pytest-cov",
     "pytest-django"
+]
+typecheck = [
+    "pyrefly",
+    "django-stubs",
+    "pandas-stubs",
+    "types-requests"
 ]
 
 [project]
@@ -39,12 +46,18 @@ name = "ecobidas_ui"
 readme = "README.md"
 requires-python = ">=3.12"
 
-[tool.black]
-line-length = 100
-
 [tool.codespell]
 ignore-words-list = "te,nd,jist"
 skip = "./.git,*.svg,env,ecobidas_ui/locale/**"
+
+[tool.djlint]
+format_css = true
+format_js = true
+indent = 2
+max_line_length = 100
+# the width of the progress bar is computed for each request
+per-file-ignores = { "ecobidas_ui/protocols/templates/protocols/protocol.html" = "H021" }
+profile = "django"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "ecobidas_ui/_version.py"
@@ -55,34 +68,9 @@ packages = ["ecobidas_ui"]
 [tool.hatch.version]
 source = "vcs"
 
-[tool.isort]
-combine_as_imports = true
-line_length = 100
-profile = "black"
-skip_gitignore = true
-
-[tool.mypy]
-check_untyped_defs = true
-disallow_any_generics = true
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
-enable_error_code = ["ignore-without-code", "redundant-expr"]  # "truthy-bool"
-no_implicit_optional = true
-show_error_codes = true
-# strict = true
-warn_redundant_casts = true
-warn_unreachable = true
-warn_unused_ignores = true
-
-[[tool.mypy.overrides]]
-ignore_missing_imports = true
-module = [
-    "rich"
-]
-
-[[tool.mypy.overrides]]
-ignore_errors = true
-module = ['tests.*']
+[tool.pyrefly]
+project-excludes = ["ecobidas_ui/_version.py"]
+project-includes = ["ecobidas_ui", "tests"]
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "ecobidas_ui.settings"
@@ -91,3 +79,28 @@ doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 junit_family = "xunit2"
 minversion = "6.0"
 xfail_strict = true
+
+[tool.ruff]
+line-length = 100
+
+[tool.ruff.lint]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107", "E712"]
+# B: bugbear, C90: complexity, D: docstrings, E/W: pycodestyle, F: pyflakes,
+# I: isort, PLR091: too many arguments / returns, UP: pyupgrade
+select = ["B", "C90", "D", "E", "F", "I", "PLR0911", "PLR0913", "UP", "W"]
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 20
+
+[tool.ruff.lint.pycodestyle]
+max-line-length = 150
+
+[tool.ruff.lint.pydocstyle]
+convention = "numpy"
+
+[tool.ruff.lint.pylint]
+max-args = 10
+max-returns = 7

@@ -2,42 +2,35 @@
 <div class="container">
   <div class="row">
     <div class="col-md-12 col-lg-12 mx-lg-auto mx-md-auto my-2">
-      <div
-        class="alert alert-danger rounded-0 text-center m-0 d-flex justify-content-center"
-        role="alert"
-      >
+      <div class="alert alert-danger rounded-0 text-center m-0 d-flex justify-content-center"
+           role="alert">
         <h6 class="m-0">🚧 {% translate "this website is under construction" %} 🚧</h6>
       </div>
     </div>
   </div>
 </div>
-
 {% for message in messages %}
-<section class="content">
-  <div class="container">
-    <div
-      class="alert alert-{{ message.tags }} alert-link alert-dismissible fade show d-flex justify-content-center"
-      role="alert"
-    >
-      <div class="d-flex align-items-center">
-        {% if message.tags == 'success' %}
-        <i class="bi bi-check-circle-fill"></i>
-        {% elif message.tags == 'warning' %}
-        <i class="bi bi-exclamation-triangle-fill"></i>
-        {% elif message.tags == 'danger' %}
-        <i class="bi bi-x-circle-fill"></i>
-        {% else %}
-        <i class="bi bi-info-circle-fill"></i>
-        {% endif %}
-        <div class="mx-3 text-center">{{ message }}</div>
+  <section class="content">
+    <div class="container">
+      <div class="alert alert-{{ message.tags }} alert-link alert-dismissible fade show d-flex justify-content-center"
+           role="alert">
+        <div class="d-flex align-items-center">
+          {% if message.tags == "success" %}
+            <i class="bi bi-check-circle-fill"></i>
+          {% elif message.tags == "warning" %}
+            <i class="bi bi-exclamation-triangle-fill"></i>
+          {% elif message.tags == "danger" %}
+            <i class="bi bi-x-circle-fill"></i>
+          {% else %}
+            <i class="bi bi-info-circle-fill"></i>
+          {% endif %}
+          <div class="mx-3 text-center">{{ message }}</div>
+        </div>
+        <button type="button"
+                class="btn-close"
+                data-bs-dismiss="alert"
+                aria-label="Close"></button>
       </div>
-      <button
-        type="button"
-        class="btn-close"
-        data-bs-dismiss="alert"
-        aria-label="Close"
-      ></button>
     </div>
-  </div>
-</section>
+  </section>
 {% endfor %}

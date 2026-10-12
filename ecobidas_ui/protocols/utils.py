@@ -24,7 +24,7 @@ def allowed_file(filename: str | Path):
     return Path(filename).suffix in ALLOWED_EXTENSIONS
 
 
-def protocol_url(protocol_name: Path) -> Path:
+def protocol_url(protocol_name: str) -> Path:
     return (
         local_cobidas_schema()
         / "schemas"
@@ -59,10 +59,10 @@ def query_choices(url: str) -> None | dict[str, Any]:
 
 
 @lru_cache
-def get_landing_page(url: Path) -> None | dict[str, Any]:
+def get_landing_page(url: Path | str) -> None | str:
     try:
         if str(url).startswith("https:"):
-            data = requests.get(url)
+            data = requests.get(str(url)).text
         else:
             data = Path(url).read_text()
     except Exception as exc:
@@ -171,7 +171,6 @@ def get_items_for_activity(activity_file):
 
     items = {}
     for i, item in enumerate(properties):
-
         item_name = item["variableName"]
 
         item_data = get_item(activity_file.parent / item["isAbout"])
@@ -257,6 +256,8 @@ def get_choices(item_data):
                     choices = json.load(f)
             else:
                 choices = query_choices(choices)
+                if choices is None:
+                    return {}
             choices = choices["choices"]
         choices = [(x["value"], get_translation(x, "name")) for x in choices]
     except KeyError:
@@ -282,7 +283,6 @@ def extract_values_participants(df, json_content):
 
 
 class Found:
-
     def __init__(self, df, age_column) -> None:
         self.number_of_subjects = int(len(df))
         self.subject_age_mean = float(df[age_column].mean())

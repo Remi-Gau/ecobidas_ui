@@ -1,26 +1,19 @@
-<link
-  href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/0.8.2/css/flag-icon.min.css"
-  rel="stylesheet"
-/>
-
+<link href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/0.8.2/css/flag-icon.min.css"
+      rel="stylesheet" />
 <ul class="navbar-nav my-1 mx-3">
   <li class="nav-item dropdown">
-    <a
-      class="nav-link dropdown-toggle active"
-      href="#"
-      data-bs-toggle="dropdown"
-      aria-expanded="false"
-    >
-      Lang
-    </a>
+    <a class="nav-link dropdown-toggle active"
+       href="#"
+       data-bs-toggle="dropdown"
+       aria-expanded="false">Lang</a>
     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
       {% for lang in languages %}
-      <li>
-        <a class="dropdown-item py-0" href="{{ lang.url }}"
-          ><span class="flag-icon flag-icon-{{ lang.flag_code }}"></span
-          ><p class="mx-0">{{ lang.display_name }}</p>
-        </a>
-      </li>
+        <li>
+          <a class="dropdown-item py-0"
+             href="{{ lang.url }}"><span class="flag-icon flag-icon-{{ lang.flag_code }}"></span>
+            <p class="mx-0">{{ lang.display_name }}</p>
+          </a>
+        </li>
       {% endfor %}
     </ul>
   </li>

@@ -5,22 +5,20 @@
 ### pybids
 
 ```python
-    out_str = ('MR data were acquired using a {tesla}-Tesla {manu} {model} '
-               'MRI scanner.')
-    out_str = out_str.format(tesla=metadata.get('MagneticFieldStrength',
-                                                'UNKNOWN'),
-                             manu=metadata.get('Manufacturer', 'MANUFACTURER'),
-                             model=metadata.get('ManufacturersModelName',
-                                                'MODEL'))
+out_str = "MR data were acquired using a {tesla}-Tesla {manu} {model} MRI scanner."
+out_str = out_str.format(
+    tesla=metadata.get("MagneticFieldStrength", "UNKNOWN"),
+    manu=metadata.get("Manufacturer", "MANUFACTURER"),
+    model=metadata.get("ManufacturersModelName", "MODEL"),
+)
 ```
 
 ```python
-desc = '''
+desc = """
         Dicoms were converted to NIfTI-1 format{software_str}.
         This section was (in part) generated
         automatically using pybids ({meth_vers}).
-        '''.format(software_str=software_str,
-                    meth_vers=__version__)
+        """.format(software_str=software_str, meth_vers=__version__)
 ```
 
 ## anat
@@ -66,7 +64,7 @@ fprintf(anat_text,...
 ### pybids
 
 ```python
-desc = '''
+desc = """
         {run_str} of {task} {variants} {seqs} {me_str} fMRI data were
         collected ({n_slices} slices{so_str}; repetition time, TR={tr}ms;
         echo time, TE={te}ms; flip angle, FA={fa}<deg>;
@@ -74,24 +72,25 @@ desc = '''
         voxel size={vs}mm{mb_str}{pr_str}).
         Each run was {length} minutes in length, during which
         {n_vols} functional volumes were acquired.
-        '''.format(run_str=run_str,
-                    task=task_name,
-                    variants=variants,
-                    seqs=seqs,
-                    me_str=me_str,
-                    n_slices=n_slices,
-                    so_str=so_str,
-                    tr=num_to_str(tr*1000),
-                    te=te,
-                    fa=metadata.get('FlipAngle', 'UNKNOWN'),
-                    vs=vs_str,
-                    fov=fov_str,
-                    ms=ms_str,
-                    length=length,
-                    n_vols=n_tps,
-                    mb_str=mb_str,
-                    pr_str=pr_str
-                    )
+        """.format(
+    run_str=run_str,
+    task=task_name,
+    variants=variants,
+    seqs=seqs,
+    me_str=me_str,
+    n_slices=n_slices,
+    so_str=so_str,
+    tr=num_to_str(tr * 1000),
+    te=te,
+    fa=metadata.get("FlipAngle", "UNKNOWN"),
+    vs=vs_str,
+    fov=fov_str,
+    ms=ms_str,
+    length=length,
+    n_vols=n_tps,
+    mb_str=mb_str,
+    pr_str=pr_str,
+)
 ```
 
 ### bids-matlab
@@ -117,23 +116,25 @@ fprintf(func_text,...
 ### pybids
 
 ```python
-desc = '''
+desc = """
         A {variants} {seqs} field map (phase encoding:
         {dir_}; {n_slices} slices; repetition time, TR={tr}ms;
         echo time, TE={te}ms; flip angle, FA={fa}<deg>;
         field of view, FOV={fov}mm; matrix size={ms};
         voxel size={vs}mm) was acquired{for_str}.
-        '''.format(variants=variants,
-                    seqs=seqs,
-                    dir_=dir_,
-                    for_str=for_str,
-                    n_slices=n_slices,
-                    tr=num_to_str(metadata['RepetitionTime']*1000),
-                    te=te,
-                    fa=metadata.get('FlipAngle', 'UNKNOWN'),
-                    vs=vs_str,
-                    fov=fov_str,
-                    ms=ms_str)
+        """.format(
+    variants=variants,
+    seqs=seqs,
+    dir_=dir_,
+    for_str=for_str,
+    n_slices=n_slices,
+    tr=num_to_str(metadata["RepetitionTime"] * 1000),
+    te=te,
+    fa=metadata.get("FlipAngle", "UNKNOWN"),
+    vs=vs_str,
+    fov=fov_str,
+    ms=ms_str,
+)
 ```
 
 ### bids-matlab
@@ -154,27 +155,28 @@ acq_param.vs, acq_param.for);
 ## dwi
 
 ```python
-desc = '''
+desc = """
         One run of {variants} {seqs} diffusion-weighted (dMRI) data were collected
         ({n_slices} slices{so_str}; repetition time, TR={tr}ms;
         echo time, TE={te}ms; flip angle, FA={fa}<deg>;
         field of view, FOV={fov}mm; matrix size={ms}; voxel size={vs}mm;
         b-values of {bval_str} acquired;
         {n_vecs} diffusion directions{mb_str}).
-        '''.format(variants=variants,
-                    seqs=seqs,
-                    n_slices=n_slices,
-                    so_str=so_str,
-                    tr=num_to_str(metadata['RepetitionTime']*1000),
-                    te=te,
-                    fa=metadata.get('FlipAngle', 'UNKNOWN'),
-                    vs=vs_str,
-                    fov=fov_str,
-                    ms=ms_str,
-                    bval_str=bval_str,
-                    n_vecs=n_vecs,
-                    mb_str=mb_str
-                    )
+        """.format(
+    variants=variants,
+    seqs=seqs,
+    n_slices=n_slices,
+    so_str=so_str,
+    tr=num_to_str(metadata["RepetitionTime"] * 1000),
+    te=te,
+    fa=metadata.get("FlipAngle", "UNKNOWN"),
+    vs=vs_str,
+    fov=fov_str,
+    ms=ms_str,
+    bval_str=bval_str,
+    n_vecs=n_vecs,
+    mb_str=mb_str,
+)
 ```
 
 ### bids-matlab

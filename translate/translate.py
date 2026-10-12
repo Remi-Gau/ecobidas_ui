@@ -37,7 +37,6 @@ def main():
     input_folder = Path(sys.argv[1])
 
     for dest_language in TARGET_LANGUAGES:
-
         print(f"translating: {dest_language}")
 
         po_file = input_folder / dest_language / "LC_MESSAGES" / "messages.po"

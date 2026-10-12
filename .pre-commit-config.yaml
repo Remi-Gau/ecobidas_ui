@@ -12,28 +12,13 @@ repos:
     -   id: end-of-file-fixer
     -   id: mixed-line-ending
     -   id: trailing-whitespace
--   repo: https://github.com/pycqa/isort
-    rev: 9.0.2
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
     hooks:
-    -   id: isort
+    -   id: ruff-check
         args:
-        -   --profile
-        -   black
-        -   --settings-path
-        -   pyproject.toml
--   repo: https://github.com/asottile/pyupgrade
-    rev: v3.21.2
-    hooks:
-    -   id: pyupgrade
-        args:
-        -   --py311-plus
--   repo: https://github.com/psf/black-pre-commit-mirror
-    rev: 26.10.0
-    hooks:
-    -   id: black
-        args:
-        -   --config
-        -   pyproject.toml
+        -   --fix
+    -   id: ruff-format
 -   repo: https://github.com/codespell-project/codespell
     rev: v2.4.3
     hooks:
@@ -64,31 +49,11 @@ repos:
         -   --autofix
         -   --indent
         -   '4'
--   repo: https://github.com/pre-commit/mirrors-prettier
-    rev: v4.0.0-alpha.8
+-   repo: https://github.com/djlint/djLint
+    rev: v1.46.4
     hooks:
-    -   id: prettier
-        types_or:
-        -   css
-        -   html
-        -   json
-        # prettier breaks django template tags across lines
-        exclude: "(?x)^(\n    ecobidas_ui/static/css/.*min.css\n    | ecobidas_ui/(.*/)?templates/.*\n)$\n"
--   repo: https://github.com/pyCQA/flake8
-    rev: 7.4.1
-    hooks:
-    -   id: flake8
-        args:
-        -   --config
-        -   .flake8
-        -   --verbose
-        -   ecobidas_ui
-        -   tests
-        additional_dependencies:
-        -   flake8-docstrings
-        -   flake8-use-fstring
-        -   flake8-functions
-        -   flake8-bugbear
+    -   id: djlint-reformat-django
+    -   id: djlint-django
 ci:
     autoupdate_commit_msg: 'chore: update pre-commit hooks'
     autoupdate_schedule: quarterly

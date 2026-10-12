@@ -44,6 +44,17 @@ uv run python manage.py runserver
 
 Open the link `http://127.0.0.1:8000`
 
+## Linting and type checking
+
+Code is linted and formatted with [ruff](https://docs.astral.sh/ruff/)
+and templates with [djLint](https://djlint.com/) via [pre-commit](https://pre-commit.com/).
+Types are checked with [pyrefly](https://pyrefly.org/).
+
+```bash
+tox run -e lint       # or: uv run pre-commit run --all-files
+tox run -e typecheck  # or: uv run pyrefly check
+```
+
 ## Translations
 
 Translations live in `ecobidas_ui/locale`.

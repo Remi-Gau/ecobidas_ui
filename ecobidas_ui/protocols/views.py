@@ -124,7 +124,6 @@ def activity_post(request, protocol_name: str, activity_name: str):
         and "submit_upload" in request.POST
         and upload_participants_form.is_valid()
     ):
-
         data = upload_participants_form.cleaned_data["participants"]
 
         if message := validate_participants_form(data):
@@ -149,11 +148,11 @@ def activity_post(request, protocol_name: str, activity_name: str):
                 request,
                 mark_safe(
                     "<p>"
-                    f'{_("The `participants.json` was not annotated. ")}'
-                    f'{_("Annotate your data with the ")}'
+                    f"{_('The `participants.json` was not annotated. ')}"
+                    f"{_('Annotate your data with the ')}"
                     "<a href='https://annotate.neurobagel.org/' target='_blank'"
                     "class='alert-link'>"
-                    f'{_("neurobagel online annotation tool")}'
+                    f"{_('neurobagel online annotation tool')}"
                     "</a></p>"
                 ),
             )
@@ -170,7 +169,6 @@ def activity_post(request, protocol_name: str, activity_name: str):
         messages.success(request, f"{_('The following fields were updated:')} {fields}")
 
     if extra_form and "submit_bold_json" in request.POST and extra_form.is_valid():
-
         data = extra_form.cleaned_data["bold_json"]
         if not isinstance(data, list):
             data = [data]
@@ -197,7 +195,6 @@ def activity_post(request, protocol_name: str, activity_name: str):
         messages.success(request, f"{_('The following fields were updated:')} {fields}")
 
     elif "submit" in request.POST:
-
         if "messages" in activity:
             for message in validate_activity(activity["messages"], items, form_data):
                 messages.error(request, message)
@@ -294,7 +291,9 @@ def save_uploaded_file(file, folder: Path) -> str:
     return filename
 
 
-def generate_extra_forms(request, protocol_name, activity_name) -> tuple[forms.Form | None]:
+def generate_extra_forms(
+    request, protocol_name, activity_name
+) -> tuple[forms.Form | None, forms.Form | None]:
 
     upload_participants_form = None
     upload_acquisition_form = None
@@ -347,7 +346,6 @@ def validate_participants_form(data):
 
 
 class JsonMeta:
-
     def __init__(self, json_file) -> None:
         with open(json_file) as f:
             json_content = json.load(f)

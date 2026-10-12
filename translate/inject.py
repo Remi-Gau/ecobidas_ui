@@ -33,13 +33,10 @@ def update_jsonld_with_translations(po_file, dest_language):
 
     # Populate translations dictionary with msgid and msgstr pairs
     for entry in po:
-
         # Extract the path from the comment
         comments = entry.comment.split(",\n")
         for idx in range(0, len(comments) - 1, 2):
-
             if entry.msgstr != "":
-
                 jsonld_file = comments[idx].replace("Extracted from file:\n", "")
 
                 path = comments[idx + 1].split("path: ")[-1].strip()
@@ -88,12 +85,10 @@ def update_jsonld(jsonld_data, translations, dest_language):
 
 # Example usage:
 if __name__ == "__main__":
-
     # input_folder = Path(sys.argv[1])
     input_folder = Path("translate/translations")
 
     for dest_language in TARGET_LANGUAGES:
-
         print(f"translating: {dest_language}")
 
         po_file = input_folder / dest_language / "LC_MESSAGES" / "messages.po"
