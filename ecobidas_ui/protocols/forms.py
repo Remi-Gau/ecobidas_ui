@@ -1,5 +1,6 @@
 import json
 from pathlib import Path
+from typing import Any
 
 import pandas as pd
 from django import forms
@@ -60,16 +61,21 @@ class UploadBoldJsonForm(forms.Form):
     )
 
 
-def generate_form(items=None, prefix=None, obj=None, data=None, initial=None) -> forms.Form:
+def generate_form(
+    items: dict[str, Any],
+    prefix: str | None = None,
+    obj: Any = None,
+    data: Any = None,
+    initial: dict[str, Any] | None = None,
+) -> forms.Form:
     """Generate a form for the items of an activity.
 
     Values are taken from ``data`` (submitted values),
     then ``initial``, then the attributes of ``obj``.
     """
-    fields = {}
+    fields: dict[str, forms.Field] = {}
 
     for item_name, item in items.items():
-
         attrs = (
             {"style": "border-color: green; border-width: 2px;"}
             if item["is_answered"]
@@ -100,7 +106,6 @@ def generate_form(items=None, prefix=None, obj=None, data=None, initial=None) ->
             )
 
         elif input_type not in ["select", "radio", "slider"]:
-
             field_kwargs = {}
             FieldType = forms.CharField
             widget = forms.TextInput
@@ -127,7 +132,6 @@ def generate_form(items=None, prefix=None, obj=None, data=None, initial=None) ->
             )
 
         elif input_type == "slider":
-
             min_label = float(item["choices"][0][1])
             max_label = float(item["choices"][-1][1])
 
@@ -142,7 +146,6 @@ def generate_form(items=None, prefix=None, obj=None, data=None, initial=None) ->
             )
 
         else:
-
             fields[item_name] = choice_based_field(item, attrs, kwargs)
 
     DynamicForm = type("DynamicForm", (forms.Form,), fields)
@@ -166,7 +169,7 @@ def choice_based_field(item: dict, attrs: dict, kwargs: dict) -> forms.Field:
         FieldType, widget = forms.MultipleChoiceField, forms.SelectMultiple
     elif input_type == "select":
         FieldType, widget = forms.ChoiceField, forms.Select
-    elif input_type == "radio":
+    else:  # radio
         FieldType, widget = forms.ChoiceField, forms.RadioSelect
 
     return FieldType(

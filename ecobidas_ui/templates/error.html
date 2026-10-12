@@ -1,18 +1,17 @@
 {% extends "layout/base.html" %}
 <!--  -->
 {% block main %}
-<div class="row">
-  <div
-    class="col-md-12 col-lg-12 d-flex flex-column align-items-center justify-content-center"
-  >
-    <img
-      class="img-fluid my-2"
-      src="https://http.cat/{% block error_code %}{% endblock %}"
-    />
-    <p class="m-2 text-center">{% block error %} {% endblock %}</p>
-    <p class="m-2 text-center">
-      Want to <a href="{% url 'public:index' %}">go home</a> instead?
-    </p>
+  <div class="row">
+    <div class="col-md-12 col-lg-12 d-flex flex-column align-items-center justify-content-center">
+      <img class="img-fluid my-2"
+           alt="cat illustrating the error"
+           src="https://http.cat/{% block error_code %}{% endblock %}" />
+      <p class="m-2 text-center">
+        {% block error %}{% endblock %}
+      </p>
+      <p class="m-2 text-center">
+        Want to <a href="{% url 'public:index' %}">go home</a> instead?
+      </p>
+    </div>
   </div>
-</div>
 {% endblock %}

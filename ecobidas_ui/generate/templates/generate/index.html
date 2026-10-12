@@ -1,23 +1,20 @@
-{% extends 'layout/default.html' %}
+{% extends "layout/default.html" %}
 {% load i18n %}
 <!--  -->
-{% block title %} eCOBIDAS {% endblock %}
+{% block title %}eCOBIDAS{% endblock %}
 <!--  -->
 {% block content %}
-<div class="container">
-  <div class="row d-flex align-items-center justify-content-center">
-    <div class="col-md-8 col-lg-8 d-flex flex-column align-items-center">
-      <div class="p-5">
-        <a href="{% url 'generate:download' %}">
-          <button type="button" class="btn btn-primary btn-outline-light my-1">
-            {% translate "Download as markdown" %}
-          </button>
-        </a>
+  <div class="container">
+    <div class="row d-flex align-items-center justify-content-center">
+      <div class="col-md-8 col-lg-8 d-flex flex-column align-items-center">
+        <div class="p-5">
+          <a href="{% url 'generate:download' %}"
+             class="btn btn-primary btn-outline-light my-1"
+             role="button">{% translate "Download as markdown" %}</a>
+        </div>
+        <h1 class="p-1">Report</h1>
+        <div>{% include "generate/report.html" %}</div>
       </div>
-
-      <h1 class="p-1">Report</h1>
-      <div>{% include 'generate/report.html' %}</div>
     </div>
   </div>
-</div>
 {% endblock %}

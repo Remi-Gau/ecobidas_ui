@@ -13,100 +13,64 @@
   <nav class="navbar navbar-expand-lg navbar-light bg-primary sticky-top">
     <div class="container-fluid">
       <a class="navbar-brand" href="{% url 'public:index' %}">eCOBIDAS</a>
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbarSupportedContent"
-        aria-controls="navbarSupportedContent"
-        aria-expanded="false"
-        aria-label="Toggle navigation"
-      >
+      <button class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarSupportedContent"
+              aria-controls="navbarSupportedContent"
+              aria-expanded="false"
+              aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
-
       <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav my-1 mx-auto">
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == cobidas_url %}active{% endif %}"
-              href="{{ cobidas_url }}"
-              >cobidas MRI</a
-            >
+            <a class="nav-link {% if request.path == cobidas_url %}active{% endif %}"
+               href="{{ cobidas_url }}">cobidas MRI</a>
           </li>
           <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              {% translate "Other checklists" %}
-            </a>
+            <a class="nav-link dropdown-toggle"
+               href="#"
+               data-bs-toggle="dropdown"
+               aria-expanded="false">{% translate "Other checklists" %}</a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li>
-                <a
-                  class="dropdown-item {% if request.path == neurovault_url %}active{% endif %}"
-                  href="{{ neurovault_url }}"
-                  >Neurovault</a
-                >
+                <a class="dropdown-item {% if request.path == neurovault_url %}active{% endif %}"
+                   href="{{ neurovault_url }}">Neurovault</a>
               </li>
               <li>
-                <a
-                  class="dropdown-item {% if request.path == eyetracking_url %}active{% endif %}"
-                  href="{{ eyetracking_url }}"
-                  >eyetracking</a
-                >
+                <a class="dropdown-item {% if request.path == eyetracking_url %}active{% endif %}"
+                   href="{{ eyetracking_url }}">eyetracking</a>
               </li>
               <li>
-                <a
-                  class="dropdown-item {% if request.path == pet_url %}active{% endif %}"
-                  href="{{ pet_url }}"
-                  >PET</a
-                >
+                <a class="dropdown-item {% if request.path == pet_url %}active{% endif %}"
+                   href="{{ pet_url }}">PET</a>
               </li>
               <li>
-                <a
-                  class="dropdown-item {% if request.path == reexecution_url %}active{% endif %}"
-                  href="{{ reexecution_url }}"
-                  >reexecution</a
-                >
+                <a class="dropdown-item {% if request.path == reexecution_url %}active{% endif %}"
+                   href="{{ reexecution_url }}">reexecution</a>
               </li>
             </ul>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == faq_url %}active{% endif %}"
-              href="{{ faq_url }}"
-              >FAQ</a
-            >
+            <a class="nav-link {% if request.path == faq_url %}active{% endif %}"
+               href="{{ faq_url }}">FAQ</a>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == about_url %}active{% endif %}"
-              href="{{ about_url }}"
-              >About</a
-            >
+            <a class="nav-link {% if request.path == about_url %}active{% endif %}"
+               href="{{ about_url }}">About</a>
           </li>
         </ul>
-
         <ul class="navbar-nav my-1">
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == register_url %}active{% endif %}"
-              href="{{ register_url }}"
-              ><b>REGISTER</b></a
-            >
+            <a class="nav-link {% if request.path == register_url %}active{% endif %}"
+               href="{{ register_url }}"><b>REGISTER</b></a>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link {% if request.path == login_url %}active{% endif %}"
-              href="{{ login_url }}"
-              ><b>LOGIN</b></a
-            >
+            <a class="nav-link {% if request.path == login_url %}active{% endif %}"
+               href="{{ login_url }}"><b>LOGIN</b></a>
           </li>
         </ul>
-
         {% include "layout/language_picker.html" %}
       </div>
     </div>

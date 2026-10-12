@@ -1,66 +1,56 @@
-{% extends 'layout/default.html' %}
+{% extends "layout/default.html" %}
 {% load i18n %}
 <!--  -->
-{% block title %} eCOBIDAS - {{ protocol_pref_label }} {% endblock %}
+{% block title %}eCOBIDAS - {{ protocol_pref_label }}{% endblock %}
 <!--  -->
 {% block content %}
-
-<div class="container">
-  <div class="row">
-    <div class="col-md-3">
-      <h3 class="my-3 text-center text-uppercase fw-bold">
-        {{ protocol_pref_label }}
-      </h3>
-      {% include "protocols/side_nav.html" %}
-    </div>
-
-    <div class="col-sm-12 col-md-9">
-      {% if landing_page %}
-      <!--  -->
-      {{ protocol_preamble|safe }}
-      <!--  -->
-      {{ landing_page|safe }} {% else %}
-      <h3>{{ activity_pref_label }}</h3>
-      <!--  -->
-      {% if form %}
-      <div
-        class="progress border border-{{ progress.color }} m-2"
-        role="progressbar"
-        aria-label="progress bar with label"
-        aria-valuenow="{{ progress.completed_items }}"
-        aria-valuemin="0"
-        aria-valuemax="{{ progress.nb_items }}"
-        style="height: 20px"
-      >
-        <div
-          class="progress-bar bg-{{ progress.color }} overflow-visible text-dark"
-          style="height: 20px; width: {{ progress.percent_completed }}%"
-        >
-          &nbsp; {{ progress.completed_items }} / {{ progress.nb_items }} items
-          completed {{ progress.emoji }}
-        </div>
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <h3 class="my-3 text-center text-uppercase fw-bold">{{ protocol_pref_label }}</h3>
+        {% include "protocols/side_nav.html" %}
       </div>
-
-      {% endif %}
-      <!--  -->
-      {{ activity_preamble|safe }}
-      <!--  -->
-      {% include "protocols/extra_forms.html" %}
-      <!--  -->
-      {% if form %}
-      <div
-        class="row border border-1 border-secondary rounded-2 overflow-scroll shadow d-flex justify-content-center m-3"
-        style="height: 700px"
-      >
-        <div class="col-md-12 col-lg-12 p-3">
-          {% translate "Save" as save_label %}
-          {% include "layout/form.html" with submit_name="submit" submit_label=save_label %}
-        </div>
+      <div class="col-sm-12 col-md-9">
+        {% if landing_page %}
+          <!--  -->
+          {{ protocol_preamble|safe }}
+          <!--  -->
+          {{ landing_page|safe }} {% else %}
+          <h3>{{ activity_pref_label }}</h3>
+          <!--  -->
+          {% if form %}
+            <div class="progress border border-{{ progress.color }} m-2"
+                 role="progressbar"
+                 aria-label="progress bar with label"
+                 aria-valuenow="{{ progress.completed_items }}"
+                 aria-valuemin="0"
+                 aria-valuemax="{{ progress.nb_items }}"
+                 style="height: 20px">
+              <div class="progress-bar bg-{{ progress.color }} overflow-visible text-dark"
+                   style="height: 20px;
+                          width: {{ progress.percent_completed }}%">
+                &nbsp; {{ progress.completed_items }} / {{ progress.nb_items }} items
+                completed {{ progress.emoji }}
+              </div>
+            </div>
+          {% endif %}
+          <!--  -->
+          {{ activity_preamble|safe }}
+          <!--  -->
+          {% include "protocols/extra_forms.html" %}
+          <!--  -->
+          {% if form %}
+            <div class="row border border-1 border-secondary rounded-2 overflow-scroll shadow d-flex justify-content-center m-3"
+                 style="height: 700px">
+              <div class="col-md-12 col-lg-12 p-3">
+                {% translate "Save" as save_label %}
+                {% include "layout/form.html" with submit_name="submit" submit_label=save_label %}
+              </div>
+            </div>
+          {% endif %}
+          <!--  -->
+        {% endif %}
       </div>
-      {% endif %}
-      <!--  -->
-      {% endif %}
     </div>
   </div>
-</div>
 {% endblock %}
