@@ -83,7 +83,7 @@ module = ['tests.*']
 
 [tool.pytest.ini_options]
 DJANGO_SETTINGS_MODULE = "ecobidas_ui.settings"
-addopts = "-ra --strict-config --strict-markers --doctest-modules --showlocals -s -v --ignore=ecobidas_central"
+addopts = "-ra --strict-config --strict-markers --doctest-modules --showlocals -s -v --ignore=ecobidas_central --ignore=translate"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 junit_family = "xunit2"
 minversion = "6.0"
