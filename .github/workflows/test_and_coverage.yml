@@ -39,3 +39,24 @@ jobs:
                 token: ${{ secrets.CODECOV_TOKEN }}
                 fail_ci_if_error: false
                 verbose: true
+
+    visual:
+        runs-on: ubuntu-latest
+        steps:
+        -   name: Clone repo
+            uses: actions/checkout@v7
+            with:
+                submodules: recursive
+        -   name: Install uv
+            uses: astral-sh/setup-uv@v10.3.0
+        -   name: Install the project
+            # generates ecobidas_ui/_version.py needed by the visual tests
+            run: uv sync --locked --no-dev
+        -   name: Run visual regression tests
+            run: make visual
+        -   name: Upload screenshots of the failed visual tests
+            if: failure()
+            uses: actions/upload-artifact@v7
+            with:
+                name: visual-regression-failures
+                path: tests/visual/snapshot_failures/

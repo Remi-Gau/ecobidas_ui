@@ -44,6 +44,20 @@ uv run python manage.py runserver
 
 Open the link `http://127.0.0.1:8000`
 
+## Visual regression tests
+
+Screenshots of the main pages are compared to the reference images in `tests/visual/snapshots`.
+They run in the playwright docker image, so that the screenshots
+do not depend on the browsers and fonts installed on your machine (requires docker).
+
+```bash
+uv sync           # generates ecobidas_ui/_version.py used by the tests
+make visual       # on failure, see the screenshots in tests/visual/snapshot_failures
+make visual_update  # update the reference images after an intended visual change
+```
+
+To add a page, add it to `PAGES` in `tests/visual/test_pages.py` and run `make visual_update`.
+
 ## Linting and type checking
 
 Code is linted and formatted with [ruff](https://docs.astral.sh/ruff/),
