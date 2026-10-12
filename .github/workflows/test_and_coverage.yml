@@ -23,7 +23,7 @@ jobs:
         -   name: Clone repo
             uses: actions/checkout@v7
             with:
-                submodules: true
+                submodules: recursive
         -   name: Set up Python
             uses: actions/setup-python@v7
             with:
