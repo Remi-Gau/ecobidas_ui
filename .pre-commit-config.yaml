@@ -70,7 +70,8 @@ repos:
         -   css
         -   html
         -   json
-        exclude: "(?x)^(\n    ecobidas_ui/static/css/.*min.css\n)$\n"
+        # prettier breaks django template tags across lines
+        exclude: "(?x)^(\n    ecobidas_ui/static/css/.*min.css\n    | ecobidas_ui/(.*/)?templates/.*\n)$\n"
 -   repo: https://github.com/pyCQA/flake8
     rev: 7.4.1
     hooks:

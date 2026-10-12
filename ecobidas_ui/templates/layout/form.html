@@ -1,0 +1,11 @@
+{% load django_bootstrap5 %}
+<form
+  method="post"
+  {% if form.is_multipart %}enctype="multipart/form-data"{% endif %}
+>
+  {% csrf_token %}
+  {% bootstrap_form form %}
+  <button type="submit" name="{{ submit_name }}" class="btn btn-primary">
+    {{ submit_label }}
+  </button>
+</form>

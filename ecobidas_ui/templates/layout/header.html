@@ -1,3 +1,4 @@
+{% load i18n %}
 <div class="container">
   <div class="row">
     <div class="col-md-12 col-lg-12 mx-lg-auto mx-md-auto my-2">
@@ -5,40 +6,28 @@
         class="alert alert-danger rounded-0 text-center m-0 d-flex justify-content-center"
         role="alert"
       >
-        <h6 class="m-0">🚧 {{_("this website is under construction")}} 🚧</h6>
+        <h6 class="m-0">🚧 {% translate "this website is under construction" %} 🚧</h6>
       </div>
     </div>
   </div>
 </div>
 
-{% with messages = get_flashed_messages(with_categories=true) %}
-<!--  -->
-{% if messages %}
-<!--  -->
-{% for category, message in messages %}
+{% for message in messages %}
 <section class="content">
   <div class="container">
     <div
-      class="alert alert-{{ category }} alert-link alert-dismissible fade show d-flex justify-content-center"
+      class="alert alert-{{ message.tags }} alert-link alert-dismissible fade show d-flex justify-content-center"
       role="alert"
     >
       <div class="d-flex align-items-center">
-        {% if category == 'success' %}
-        <!--  -->
-        {{ render_icon('check-circle-fill') }}
-        <!--  -->
-        {% elif category == 'warning' %}
-        <!--  -->
-        {{ render_icon('exclamation-triangle-fill') }}
-        <!--  -->
-        {% elif category == 'danger' %}
-        <!--  -->
-        {{ render_icon('x-circle-fill') }}
-        <!--  -->
+        {% if message.tags == 'success' %}
+        <i class="bi bi-check-circle-fill"></i>
+        {% elif message.tags == 'warning' %}
+        <i class="bi bi-exclamation-triangle-fill"></i>
+        {% elif message.tags == 'danger' %}
+        <i class="bi bi-x-circle-fill"></i>
         {% else %}
-        <!--  -->
-        {{ render_icon('info-circle-fill') }}
-        <!--  -->
+        <i class="bi bi-info-circle-fill"></i>
         {% endif %}
         <div class="mx-3 text-center">{{ message }}</div>
       </div>
@@ -52,7 +41,3 @@
   </div>
 </section>
 {% endfor %}
-<!--  -->
-{% endif %}
-<!--  -->
-{% endwith %}

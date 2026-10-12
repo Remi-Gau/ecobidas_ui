@@ -8,3 +8,5 @@ COPY .git app/.git
 WORKDIR /app
 
 RUN pip install --upgrade pip && make install
+
+RUN python manage.py collectstatic --noinput

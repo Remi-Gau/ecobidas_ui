@@ -1,3 +1,4 @@
+{% load i18n static %}
 <div class="row m-3">
   <div class="col-md-12 col-lg-12">
     {% if upload_participants_form %}
@@ -5,7 +6,7 @@
       <h5>
         <img
           width="25%"
-          src="{{ url_for('static', filename='images/BIDS_logo_black.svg') }}"
+          src="{% static 'images/BIDS_logo_black.svg' %}"
           alt="BIDS"
         />
       </h5>
@@ -23,14 +24,15 @@
           >the neurobagel annotation tool</a
         >.
       </p>
-      {{ render_form(upload_participants_form) }}
+      {% translate "Upload" as upload_label %}
+      {% include "layout/form.html" with form=upload_participants_form submit_name="submit_upload" submit_label=upload_label %}
     </div>
     {% endif %} {% if upload_acquisition_form %}
     <div class="p-3 border border-1 border-success rounded-1">
       <h5>
         <img
           width="25%"
-          src="{{ url_for('static', filename='images/BIDS_logo_black.svg') }}"
+          src="{% static 'images/BIDS_logo_black.svg' %}"
           alt="BIDS"
         />
       </h5>
@@ -44,7 +46,8 @@
         >
         containing the metadata for your fMRI runs.
       </p>
-      {{ render_form(upload_acquisition_form) }}
+      {% translate "Upload" as upload_label %}
+      {% include "layout/form.html" with form=upload_acquisition_form submit_name="submit_bold_json" submit_label=upload_label %}
     </div>
     {% endif %}
   </div>

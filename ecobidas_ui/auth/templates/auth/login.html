@@ -1,7 +1,5 @@
 {% extends 'layout/default.html' %}
 <!--  -->
-{% from 'bootstrap5/form.html' import render_form %}
-<!--  -->
 
 {% block title %} eCOBIDAS - Login {% endblock %} {% block content %}
 
@@ -9,10 +7,10 @@
   <div class="row d-flex justify-content-center">
     <div class="col-md-6 col-lg-6 p-3">
       <h1>Login</h1>
-      {{ render_form(form) }}
+      {% include "layout/form.html" with submit_name="submit" submit_label="Submit" %}
       <p class="my-3">
         Don't have a login?
-        <a href="{{ url_for('auth.register') }}">Register</a>
+        <a href="{% url 'auth:register' %}">Register</a>
       </p>
     </div>
   </div>

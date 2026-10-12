@@ -2,34 +2,37 @@ import json
 from pathlib import Path
 
 import pandas as pd
-from flask_babel import _
-from flask_wtf import FlaskForm
-from flask_wtf.file import FileAllowed, FileField, FileRequired, MultipleFileField
-from markupsafe import Markup
-from wtforms import (
-    DateField,
-    DecimalField,
-    HiddenField,
-    IntegerField,
-    RadioField,
-    SelectField,
-    SelectMultipleField,
-    StringField,
-    SubmitField,
-    TextAreaField,
-)
-from wtforms.validators import DataRequired, NumberRange
+from django import forms
+from django.core.validators import FileExtensionValidator
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 
-class UploadParticipantsForm(FlaskForm):
+class MultipleFileInput(forms.ClearableFileInput):
+    allow_multiple_selected = True
+
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            return [single_file_clean(d, initial) for d in data]
+        return [single_file_clean(data, initial)]
+
+
+class UploadParticipantsForm(forms.Form):
     participants = MultipleFileField(
-        _("Upload participants.tsv and participants.json"),
+        label=_("Upload participants.tsv and participants.json"),
         validators=[
-            FileRequired(),
-            FileAllowed(["tsv", "json"], _("File must be '.tsv' and '.json' files.")),
+            FileExtensionValidator(
+                ["tsv", "json"], message=_("File must be '.tsv' and '.json' files.")
+            )
         ],
     )
-    submit_upload = SubmitField(_("Upload"))
 
 
 def validate_participants_json(participants_json: Path | str | dict):
@@ -48,98 +51,79 @@ def validate_participants_tsv(participants_tsv: Path | pd.DataFrame):
     return "participant_id" in participants_tsv.columns
 
 
-class UploadBoldJsonForm(FlaskForm):
-    bold_json = FileField(
-        _("Upload bold.json"),
-        validators=[FileRequired(), FileAllowed(["json"], _("The file must be a '.json' file."))],
+class UploadBoldJsonForm(forms.Form):
+    bold_json = forms.FileField(
+        label=_("Upload bold.json"),
+        validators=[
+            FileExtensionValidator(["json"], message=_("The file must be a '.json' file."))
+        ],
     )
-    submit_bold_json = SubmitField(_("Upload"))
 
 
-def generate_form(items=None, prefix=None, obj=None) -> FlaskForm:
+def generate_form(items=None, prefix=None, obj=None, data=None, initial=None) -> forms.Form:
+    """Generate a form for the items of an activity.
 
-    class DyanmicForm(FlaskForm):
-        pass
-
-    form = DyanmicForm
+    Values are taken from ``data`` (submitted values),
+    then ``initial``, then the attributes of ``obj``.
+    """
+    fields = {}
 
     for item_name, item in items.items():
 
-        render_kw = (
+        attrs = (
             {"style": "border-color: green; border-width: 2px;"}
             if item["is_answered"]
             else {"style": "border-color: red; border-width: 2px;"}
         )
 
-        validators = []
-        if item["required"]:
-            validators.append(DataRequired())
+        kwargs = {
+            "required": bool(item["required"]),
+            "help_text": mark_safe(item["description"]),
+        }
 
         question = f"{item['question']} {item['unit']}"
 
         if not item["visibility"]:
-            setattr(
-                form,
-                item_name,
-                HiddenField(
-                    Markup(question),
-                    validators=validators,
-                    description=item["description"],
-                    _prefix=prefix,
-                ),
+            fields[item_name] = forms.CharField(
+                label=mark_safe(question), widget=forms.HiddenInput, **kwargs
             )
             continue
 
         input_type = item["input_type"]
 
-        default = None
-
         if input_type == "date":
-            FieldType = DateField
-            setattr(
-                form,
-                item_name,
-                FieldType(
-                    Markup(question),
-                    validators=validators,
-                    description=item["description"],
-                    default=default,
-                    _prefix=prefix,
-                    format="%Y-%m-%d",
-                    render_kw=render_kw,
-                ),
+            fields[item_name] = forms.DateField(
+                label=mark_safe(question),
+                input_formats=["%Y-%m-%d"],
+                widget=forms.DateInput(attrs={**attrs, "type": "date"}, format="%Y-%m-%d"),
+                **kwargs,
             )
 
         elif input_type not in ["select", "radio", "slider"]:
 
-            FieldType = StringField
+            field_kwargs = {}
+            FieldType = forms.CharField
+            widget = forms.TextInput
             if input_type == "number":
-                FieldType = IntegerField
+                FieldType = forms.IntegerField
+                widget = forms.NumberInput
             elif input_type == "float":
-                FieldType = DecimalField
+                FieldType = forms.DecimalField
+                widget = forms.NumberInput
             elif input_type == "textarea":
-                FieldType = TextAreaField
+                widget = forms.Textarea
 
             if input_type in ["number", "float"]:
                 minimum = item["min"]
                 maximum = item["max"]
-                validators.append(NumberRange(min=minimum, max=maximum))
+                field_kwargs = {"min_value": minimum, "max_value": maximum}
                 if minimum is not None and maximum is not None:
                     question += f" ({minimum=}, {maximum=})"
                 elif minimum is not None:
                     question += f" ({minimum=})"
 
-            setattr(
-                form,
-                item_name,
-                FieldType(
-                    Markup(question),
-                    validators=validators,
-                    description=item["description"],
-                    default=default,
-                    _prefix=prefix,
-                    render_kw=render_kw,
-                ),
+            fields[item_name] = FieldType(
+                label=mark_safe(question), widget=widget(attrs=attrs), **field_kwargs, **kwargs
             )
 
         elif input_type == "slider":
@@ -149,66 +133,45 @@ def generate_form(items=None, prefix=None, obj=None) -> FlaskForm:
 
             question += f" (min={min_label}, max={max_label})"
 
-            FieldType = DecimalField
-            validators.append(NumberRange(min=min_label, max=max_label))
-
-            setattr(
-                form,
-                item_name,
-                FieldType(
-                    Markup(question),
-                    validators=validators,
-                    description=item["description"],
-                    _prefix=prefix,
-                    render_kw=render_kw,
-                ),
+            fields[item_name] = forms.DecimalField(
+                label=mark_safe(question),
+                min_value=min_label,
+                max_value=max_label,
+                widget=forms.NumberInput(attrs=attrs),
+                **kwargs,
             )
 
         else:
 
-            form = add_choice_based_items(form, prefix, item_name, item)
+            fields[item_name] = choice_based_field(item, attrs, kwargs)
 
-    setattr(form, "submit", SubmitField(_("Save")))  # noqa B010
+    DynamicForm = type("DynamicForm", (forms.Form,), fields)
 
-    return form(obj=obj)
+    initial = dict(initial or {})
+    if obj is not None:
+        for key in fields:
+            if getattr(obj, key, None) is not None:
+                initial[key] = getattr(obj, key)
+
+    return DynamicForm(data=data, prefix=prefix, initial=initial)
 
 
-def add_choice_based_items(form: FlaskForm, prefix: str, item_name: str, item: dict) -> FlaskForm:
+def choice_based_field(item: dict, attrs: dict, kwargs: dict) -> forms.Field:
 
     question = f"{item['question']} {item['unit']}"
 
     input_type = item["input_type"]
 
-    render_kw = (
-        {"style": "border-color: green; border-width: 2px;"}
-        if item["is_answered"]
-        else {"style": "border-color: red; border-width: 2px;"}
-    )
-
-    validators = []
-    if item["required"]:
-        validators.append(DataRequired())
-
-    is_multiple = item["is_multiple"]
-
-    if is_multiple:
-        FieldType = SelectMultipleField
+    if item["is_multiple"]:
+        FieldType, widget = forms.MultipleChoiceField, forms.SelectMultiple
     elif input_type == "select":
-        FieldType = SelectField
+        FieldType, widget = forms.ChoiceField, forms.Select
     elif input_type == "radio":
-        FieldType = RadioField
+        FieldType, widget = forms.ChoiceField, forms.RadioSelect
 
-    setattr(
-        form,
-        item_name,
-        FieldType(
-            Markup(question),
-            validators=validators,
-            description=item["description"],
-            choices=item["choices"],
-            _prefix=prefix,
-            render_kw=render_kw,
-        ),
+    return FieldType(
+        label=mark_safe(question),
+        choices=item["choices"],
+        widget=widget(attrs=attrs),
+        **kwargs,
     )
-
-    return form

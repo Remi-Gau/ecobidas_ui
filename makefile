@@ -1,13 +1,13 @@
-.PHONY: messages.pot
+.PHONY: messages compile_messages
 
-messages.pot:
-	pybabel extract -F babel.cfg -o messages.pot .
+# requires gettext to be installed
+messages:
+	cd ecobidas_ui && django-admin makemessages -l de -l fr -l es -l zh_Hans
 
-# pybabel init -i messages.pot -d ecobidas_ui/translations -l fr
-# pybabel update -i messages.pot -d ecobidas_ui/translations -l fr
+compile_messages:
+	cd ecobidas_ui && django-admin compilemessages
 
 # sudo snap install poedit
-# pybabel compile -d ecobidas_ui/translations
 
 install:
 	git submodule update --init --recursive && git submodule update --recursive

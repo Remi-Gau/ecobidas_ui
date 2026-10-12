@@ -1,54 +1,42 @@
-"""Public section, including homepage and signup."""
+"""Generate a method section from the checklist."""
 
 import json
-from pathlib import Path
 
-from flask import Blueprint, current_app, flash, g, render_template, send_from_directory
-from flask_babel import _
+from django.conf import settings
+from django.contrib import messages
+from django.http import FileResponse
+from django.shortcuts import render
+from django.template.loader import render_to_string
+from django.utils.translation import gettext as _
 from markdownify import markdownify as md
 
-blueprint = Blueprint(
-    "generate", __name__, url_prefix="/<lang_code>/generate", template_folder="templates"
-)
+from ecobidas_ui.views import require_methods
 
 
 def dummmy_data():
     with open(
-        current_app.config["ROOT_DIR"]
-        / ".."
-        / "inputs"
-        / "bids_template"
-        / "task-auditoryLocalizer_bold.json"
+        settings.ROOT_DIR / ".." / "inputs" / "bids_template" / "task-auditoryLocalizer_bold.json"
     ) as f:
         data = json.load(f)
     return data
 
 
-@blueprint.url_defaults
-def add_language_code(endpoint, values):
-    values.setdefault("lang_code", g.lang_code)
-
-
-@blueprint.url_value_preprocessor
-def pull_lang_code(endpoint, values):
-    g.lang_code = values.pop("lang_code")
-
-
-@blueprint.route("/", methods=["GET", "POST"])
-def generate():
-    flash(
+@require_methods("GET", "POST")
+def generate(request):
+    messages.warning(
+        request,
         _(
             """This page was generated using dummy data.
         In the final version the content of this page should adapt to the values you inputted in the checklist."""
         ),
-        category="warning",
     )
-    return render_template("generate/index.html", **dummmy_data())
+    return render(request, "generate/index.html", dummmy_data())
 
 
-@blueprint.route("/download", methods=["GET"])
-def download():
-    tmp = md(render_template("generate/report.html"), heading_style="ATX")
-    with open(Path(current_app.config["UPLOAD_FOLDER"]) / "report.md", "w") as f:
+@require_methods("GET")
+def download(request):
+    tmp = md(render_to_string("generate/report.html", request=request), heading_style="ATX")
+    report = settings.UPLOAD_FOLDER / "report.md"
+    with open(report, "w") as f:
         f.write(tmp)
-    return send_from_directory(current_app.config["UPLOAD_FOLDER"], "report.md")
+    return FileResponse(open(report, "rb"), content_type="text/markdown")

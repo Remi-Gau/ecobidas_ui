@@ -1,4 +1,5 @@
 {% extends 'layout/default.html' %}
+{% load i18n %}
 <!--  -->
 {% block title %} eCOBIDAS {% endblock %}
 <!--  -->
@@ -7,9 +8,9 @@
   <div class="row d-flex align-items-center justify-content-center">
     <div class="col-md-8 col-lg-8 d-flex flex-column align-items-center">
       <div class="p-5">
-        <a href="{{ url_for('generate.download') }}">
+        <a href="{% url 'generate:download' %}">
           <button type="button" class="btn btn-primary btn-outline-light my-1">
-            {{_('Download as markdown')}}
+            {% translate "Download as markdown" %}
           </button>
         </a>
       </div>

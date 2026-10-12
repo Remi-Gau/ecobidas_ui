@@ -1,15 +1,11 @@
-from flask_wtf import FlaskForm
-from wtforms.fields import PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, InputRequired
+from django import forms
 
 
-class RegisterForm(FlaskForm):
-    username = StringField("Username", [InputRequired(), DataRequired()])
-    password = PasswordField("Password", [InputRequired(), DataRequired()])
-    submit = SubmitField("Submit")
+class RegisterForm(forms.Form):
+    username = forms.CharField(label="Username")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)
 
 
-class LoginForm(FlaskForm):
-    username = StringField("Username", [InputRequired(), DataRequired()])
-    password = PasswordField("Password", [InputRequired(), DataRequired()])
-    submit = SubmitField("Submit")
+class LoginForm(forms.Form):
+    username = forms.CharField(label="Username")
+    password = forms.CharField(label="Password", widget=forms.PasswordInput)

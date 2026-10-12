@@ -23,11 +23,11 @@ jobs:
         -   name: Clone repo
             uses: actions/checkout@v7
             with:
-                submodules: true
+                submodules: recursive
         -   name: Set up Python
             uses: actions/setup-python@v7
             with:
-                python-version: 3.11
+                python-version: 3.12
         -   name: Install dependencies
             run: pip install --upgrade pip tox
         -   name: Show tox config
@@ -37,6 +37,7 @@ jobs:
         -   name: Upload coverage to Codecov
             uses: codecov/codecov-action@v7
             with:
-                file: ./coverage.xml
+                files: ./coverage.xml
+                token: ${{ secrets.CODECOV_TOKEN }}
                 fail_ci_if_error: false
                 verbose: true
