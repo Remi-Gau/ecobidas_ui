@@ -75,9 +75,6 @@ repos:
         -   markdownify
         -   pandas
         -   pandas-stubs
-        -   pillow
-        -   pixelmatch
-        -   playwright
         -   pytest
         -   requests
         -   rich

@@ -18,6 +18,8 @@ from PIL import Image
 from pixelmatch.contrib.PIL import pixelmatch
 from playwright.sync_api import Page
 
+from ecobidas_ui import context_processors
+
 # playwright runs an event loop that would make django refuse database access
 os.environ.setdefault("DJANGO_ALLOW_ASYNC_UNSAFE", "true")
 
@@ -50,6 +52,12 @@ def browser_context_args(browser_context_args: dict) -> dict:
     }
 
 
+@pytest.fixture(autouse=True)
+def fixed_version(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Display the same version on every commit (shown in the footer)."""
+    monkeypatch.setattr(context_processors, "ui_version", "0.0.0")
+
+
 @pytest.fixture
 def assert_snapshot(page: Page, request: pytest.FixtureRequest) -> Callable[[str], None]:
     """Compare a full page screenshot to its reference image."""
@@ -59,8 +67,6 @@ def assert_snapshot(page: Page, request: pytest.FixtureRequest) -> Callable[[str
             full_page=True,
             animations="disabled",
             caret="hide",
-            # the version changes with every commit
-            mask=[page.get_by_text("UI version:")],
         )
 
         reference = SNAPSHOTS_DIR / f"{name}.png"
