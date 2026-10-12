@@ -5,16 +5,12 @@ requires = ["hatchling", "hatch-vcs"]
 [project]
 authors = [{ name = "Remi Gau" }]
 dependencies = [
-    "Flask-Babel",
-    "flask",
-    "Flask-WTF",
-    "Flask-Assets",
-    "bootstrap-flask",
+    "django>=5.2",
+    "django-bootstrap5",
+    "whitenoise",
     "pandas",
     "rich",
     "requests",
-    "Flask-Caching",
-    "Flask-DebugToolbar",
     "environs",
     "markdownify",
     "gunicorn",
@@ -27,7 +23,7 @@ license = { text = "GPL 3.0" }
 maintainers = [{ name = "Remi Gau", email = "remi.gau2@mcgill.ca" }]
 name = "ecobidas_ui"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 
 [project.optional-dependencies]
 dev = [
@@ -36,7 +32,8 @@ dev = [
 test = [
     "coverage",
     "pytest>=6.0.0",
-    "pytest-cov"
+    "pytest-cov",
+    "pytest-django"
 ]
 
 [tool.black]
@@ -44,7 +41,7 @@ line-length = 100
 
 [tool.codespell]
 ignore-words-list = "te,nd,jist"
-skip = "./.git,*.svg,env,ecobidas_ui/translations/**"
+skip = "./.git,*.svg,env,ecobidas_ui/locale/**"
 
 [tool.hatch.build.hooks.vcs]
 version-file = "ecobidas_ui/_version.py"
@@ -85,6 +82,7 @@ ignore_errors = true
 module = ['tests.*']
 
 [tool.pytest.ini_options]
+DJANGO_SETTINGS_MODULE = "ecobidas_ui.settings"
 addopts = "-ra --strict-config --strict-markers --doctest-modules --showlocals -s -v --ignore=ecobidas_central"
 doctest_optionflags = "NORMALIZE_WHITESPACE ELLIPSIS"
 junit_family = "xunit2"

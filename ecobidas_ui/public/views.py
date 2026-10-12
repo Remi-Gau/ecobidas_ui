@@ -2,61 +2,26 @@
 
 import json
 
-from flask import Blueprint, abort, current_app, g, redirect, render_template, request, url_for
+from django.conf import settings
+from django.shortcuts import render
 
-from ecobidas_ui.settings import STATIC_FOLDER
-
-# from flask_babel import _
-
-
-blueprint = Blueprint(
-    "public",
-    __name__,
-    static_folder="../static",
-    template_folder="templates",
-    url_prefix="/<lang_code>",
-)
+from ecobidas_ui.views import require_methods
 
 
-@blueprint.url_defaults
-def add_language_code(endpoint, values):
-    values.setdefault("lang_code", g.lang_code)
-
-
-@blueprint.url_value_preprocessor
-def pull_lang_code(endpoint, values):
-    g.lang_code = values.pop("lang_code")
-
-
-@blueprint.before_request
-def before_request():
-    if g.lang_code not in current_app.config["LANGUAGES"]:
-        adapter = current_app.url_map.bind("")
-        try:
-            endpoint, args = adapter.match("/en" + request.full_path.rstrip("/ ?"))
-            return redirect(url_for(endpoint, **args), 301)
-        except:  # noqa
-            abort(404)
-
-    dfl = request.url_rule.defaults
-    if "lang_code" in dfl:
-        if dfl["lang_code"] != request.full_path.split("/")[1]:
-            abort(404)
-
-
-@blueprint.route("/index", methods=["GET", "POST"])
-def index():
+@require_methods("GET", "POST")
+def index(request):
     """Home page."""
-    return render_template("public/index.html")
+    return render(request, "public/index.html")
 
 
-@blueprint.route("/faq/")
-def faq():
-    data = json.load(open(STATIC_FOLDER / "json" / "faq.json"))
-    return render_template("public/faq.html", data=data)
+@require_methods("GET")
+def faq(request):
+    with open(settings.ROOT_DIR / "static" / "json" / "faq.json") as f:
+        data = json.load(f)
+    return render(request, "public/faq.html", {"data": data})
 
 
-@blueprint.route("/about/")
-def about():
+@require_methods("GET")
+def about(request):
     """About page."""
-    return render_template("public/about.html")
+    return render(request, "public/about.html")

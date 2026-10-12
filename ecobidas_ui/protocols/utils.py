@@ -6,8 +6,9 @@ from typing import Any
 
 import pandas as pd
 import requests
-from flask import flash, g, url_for
-from markupsafe import escape
+from django.urls import reverse
+from django.utils.html import escape
+from django.utils.translation import get_language
 from rich import print
 
 from ecobidas_ui.utils import LANG
@@ -85,11 +86,9 @@ def get_nav_bar_content(
     activities.extend(
         {
             "name": get_prefLabel(activity),
-            "link": url_for(
-                "protocol.activity_get",
-                protocol_name=protocol_name,
-                lang_code=g.lang_code,
-                activity_name=activity["variableName"],
+            "link": reverse(
+                "protocols:activity",
+                kwargs={"protocol_name": protocol_name, "activity_name": activity["variableName"]},
             ),
             "class": "nav-link",
         }
@@ -97,8 +96,8 @@ def get_nav_bar_content(
     )
 
     if activity_name:
-        activities[0]["link"] = url_for(
-            "protocol.protocol", protocol_name=protocol_name, lang_code=g.lang_code
+        activities[0]["link"] = reverse(
+            "protocols:protocol", kwargs={"protocol_name": protocol_name}
         )
         activities[0]["class"] = "nav-link"
         for activity in activities:
@@ -110,7 +109,8 @@ def get_nav_bar_content(
 
 
 def get_translation(obj, key):
-    return obj[key][g.lang_code] if g.lang_code in obj[key] else obj[key][LANG]
+    lang_code = get_language()
+    return obj[key][lang_code] if lang_code in obj[key] else obj[key][LANG]
 
 
 def get_preamble(obj):
@@ -290,10 +290,3 @@ class Found:
         self.subject_age_max = df[age_column].max()
         # TODO Actually compute the percent male
         self.proportion_male_subjects = None
-
-
-def flash_errors(form, category="warning"):
-    """Flash all errors for a form."""
-    for field, errors in form.errors.items():
-        for error in errors:
-            flash(f"{getattr(form, field).label.text} - {error}", category)

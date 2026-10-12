@@ -2,7 +2,7 @@
 
 🎉
 
-This contains the code for a UI to run the eCOBIDAS checklist using Flask.
+This contains the code for a UI to run the eCOBIDAS checklist using Django.
 
 <img src="./images/landing.png" width=500px>
 <img src="./images/import-from-bids.png" width=500px>
@@ -26,21 +26,17 @@ pip install -e .
 ## Serve locally
 
 ```bash
-flask --app ecobidas_ui/app --debug run
+python manage.py runserver
 ```
 
-Open the link `http://127.0.0.1:5000`
+Open the link `http://127.0.0.1:8000`
 
-<!-- ```bash
-flask --app ecobidas_ui --debug run
-``` -->
+## Translations
 
-<!-- this is a base template using Bootstrap-Flask
-       https://bootstrap-flask.readthedocs.io/ -->
+Translations live in `ecobidas_ui/locale`.
+Updating and compiling them requires [gettext](https://www.gnu.org/software/gettext/).
 
-
-<!--
-	TIPS about using Bootstrap-Flask:
-	https://github.com/helloflask/bootstrap-flask
-	https://bootstrap-flask.readthedocs.io/
--->
+```bash
+make messages          # extract new strings into the .po files
+make compile_messages  # compile the .po files so Django can use them
+```

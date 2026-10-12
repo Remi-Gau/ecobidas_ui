@@ -1,22 +1,15 @@
 import json
+import logging
 from pathlib import Path
 from typing import Any
 
-from flask import (
-    Blueprint,
-    abort,
-    current_app,
-    flash,
-    g,
-    redirect,
-    render_template,
-    request,
-    url_for,
-)
-from flask_babel import _
-from flask_wtf import FlaskForm
-from markupsafe import Markup
-from werkzeug.utils import secure_filename
+from django import forms
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.utils.safestring import mark_safe
+from django.utils.text import get_valid_filename
+from django.utils.translation import gettext as _
 
 from ecobidas_ui.protocols.forms import (
     UploadBoldJsonForm,
@@ -38,47 +31,19 @@ from ecobidas_ui.protocols.utils import (
     protocol_url,
     update_format,
 )
+from ecobidas_ui.views import render_error, require_methods
 
 KNWON_PROTOCOLS = ["neurovault", "eyetracking", "pet", "cobidas", "reexecution"]
 
-blueprint = Blueprint("protocol", __name__, template_folder="templates")
+logger = logging.getLogger(__name__)
 
 
-@blueprint.url_defaults
-def add_language_code(endpoint, values):
-    values.setdefault("lang_code", g.lang_code)
-    values.setdefault("protocol_name", "cobidas")
-
-
-@blueprint.url_value_preprocessor
-def pull_lang_code(endpoint, values):
-    g.lang_code = values.pop("lang_code", None)
-
-
-@blueprint.before_request
-def before_request():
-    if g.lang_code not in current_app.config["LANGUAGES"]:
-        adapter = current_app.url_map.bind("")
-        try:
-            endpoint, args = adapter.match("/en" + request.full_path.rstrip("/ ?"))
-            return redirect(url_for(endpoint, **args), 301)
-        except:  # noqa
-            flash("unknown language", category="warning")
-            abort(404)
-
-    dfl = request.url_rule.defaults
-    if "lang_code" in dfl:
-        if dfl["lang_code"] != request.full_path.split("/")[1]:
-            flash("unknown language", category="warning")
-            abort(404)
-
-
-@blueprint.route("/<lang_code>/protocol/<protocol_name>", methods=["GET", "POST"])
-def protocol(protocol_name: str) -> str:
+@require_methods("GET", "POST")
+def protocol(request, protocol_name: str):
 
     if protocol_name not in KNWON_PROTOCOLS:
-        flash(_("unknown protocol_name"), category="warning")
-        abort(404)
+        messages.warning(request, _("unknown protocol_name"))
+        return render_error(request, 404)
 
     protocol_content = get_protocol(protocol_name)
 
@@ -87,13 +52,16 @@ def protocol(protocol_name: str) -> str:
 
     activities = get_nav_bar_content(protocol_name)
 
-    return render_template(
+    return render(
+        request,
         "protocols/protocol.html",
-        protocol_pref_label=protocol_name,
-        protocol_preamble=get_preamble(protocol_content),
-        activities=activities,
-        landing_page=landing_page,
-        show_export_button=show_export_button(protocol_name),
+        {
+            "protocol_pref_label": protocol_name,
+            "protocol_preamble": get_preamble(protocol_content),
+            "activities": activities,
+            "landing_page": landing_page,
+            "show_export_button": show_export_button(protocol_name),
+        },
     )
 
 
@@ -101,90 +69,85 @@ def show_export_button(protocol_name):
     return protocol_name in ["neurovault", "cobidas"]
 
 
-@blueprint.get("/<lang_code>/protocol/<protocol_name>/<activity_name>")
-def activity_get(protocol_name, activity_name) -> str:
+@require_methods("GET", "POST")
+def activity(request, protocol_name: str, activity_name: str):
 
     if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(
         protocol_name, activity_name
     ):
-        abort(404)
+        return render_error(request, 404)
+
+    if request.method == "POST":
+        return activity_post(request, protocol_name, activity_name)
 
     activities, activity, items = prep_activity_page(protocol_name, activity_name)
 
-    upload_participants_form, extra_form = generate_extra_forms(protocol_name, activity_name)
+    upload_participants_form, extra_form = generate_extra_forms(
+        request, protocol_name, activity_name
+    )
 
     form = generate_form(items=items, prefix=activity_name)
 
-    completed_items = sum(bool(i["is_answered"]) for i in items.values())
-    nb_items = sum(bool(i["visibility"]) for i in items.values())
-
-    return render_template(
-        "protocols/protocol.html",
-        protocol_pref_label=protocol_name,
-        activity_pref_label=get_prefLabel(activity),
-        activity_preamble=get_preamble(activity),
-        activities=activities,
-        form=form,
-        nb_items=nb_items,
-        completed_items=completed_items,
-        upload_participants_form=upload_participants_form,
-        upload_acquisition_form=extra_form,
-        show_export_button=show_export_button(protocol_name),
+    return render_activity(
+        request,
+        protocol_name,
+        activity,
+        activities,
+        items,
+        form,
+        upload_participants_form,
+        extra_form,
     )
 
 
-@blueprint.post("/<lang_code>/protocol/<protocol_name>/<activity_name>")
-def activity_post(protocol_name, activity_name) -> str:
+def activity_post(request, protocol_name: str, activity_name: str):
 
-    if protocol_name not in KNWON_PROTOCOLS or not activity_in_protocol(
-        protocol_name, activity_name
-    ):
-        abort(404)
-
-    current_app.logger.info(f"{protocol_name}-{activity_name}")
+    logger.info(f"{protocol_name}-{activity_name}")
 
     activities, activity, items = prep_activity_page(protocol_name, activity_name)
 
     base_nb_items = sum(bool(i["visibility"]) for i in items.values())
 
-    upload_participants_form, extra_form = generate_extra_forms(protocol_name, activity_name)
+    upload_participants_form, extra_form = generate_extra_forms(
+        request, protocol_name, activity_name
+    )
 
-    form = generate_form(items=items, prefix=activity_name)
+    form = generate_form(items=items, prefix=activity_name, data=request.POST)
+    form_data = get_form_data(form)
+    # keep the submitted values without displaying validation errors
+    form = generate_form(items=items, prefix=activity_name, initial=form_data)
+
+    upload_folder = Path(settings.UPLOAD_FOLDER)
 
     if (
         upload_participants_form
-        and upload_participants_form.submit_upload.data
-        and upload_participants_form.validate_on_submit()
+        and "submit_upload" in request.POST
+        and upload_participants_form.is_valid()
     ):
 
-        data = upload_participants_form.participants.data
-        if not isinstance(data, list):
-            data = [data]
+        data = upload_participants_form.cleaned_data["participants"]
 
         if message := validate_participants_form(data):
-            flash(message, category="warning")
-            return redirect(request.url)
+            messages.warning(request, message)
+            return redirect(request.get_full_path())
 
         for file in data:
-            if allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(Path(current_app.config["UPLOAD_FOLDER"]) / filename)
+            if allowed_file(file.name):
+                save_uploaded_file(file, upload_folder)
 
-        tsv_file = Path(current_app.config["UPLOAD_FOLDER"]) / "participants.tsv"
+        tsv_file = upload_folder / "participants.tsv"
         if not validate_participants_tsv(tsv_file):
             message = _(
                 "The 'participants.tsv' does not seem to be valid: 'participant_id' column is missing."
             )
-            flash(
-                Markup(f"<p>{message}</p>"),
-                category="warning",
-            )
-            return redirect(request.url)
+            messages.warning(request, mark_safe(f"<p>{message}</p>"))
+            return redirect(request.get_full_path())
 
-        json_file = Path(current_app.config["UPLOAD_FOLDER"]) / "participants.json"
+        json_file = upload_folder / "participants.json"
         if not validate_participants_json(json_file):
-            flash(
-                Markup(
+            messages.warning(
+                request,
+                mark_safe(
                     "<p>"
                     f'{_("The `participants.json` was not annotated. ")}'
                     f'{_("Annotate your data with the ")}'
@@ -193,87 +156,145 @@ def activity_post(protocol_name, activity_name) -> str:
                     f'{_("neurobagel online annotation tool")}'
                     "</a></p>"
                 ),
-                category="warning",
             )
-            return redirect(request.url)
+            return redirect(request.get_full_path())
 
         form, items, fields = process_participants_form(
-            form, activity_name, items, tsv_file, json_file
+            form_data, activity_name, items, tsv_file, json_file
         )
 
         if not fields:
-            message = _("No field could be updated.")
-            flash(message, category="warning")
-            return redirect(request.url)
+            messages.warning(request, _("No field could be updated."))
+            return redirect(request.get_full_path())
 
-        message = f"{_('The following fields were updated:')} {fields}"
-        flash(message, category="success")
+        messages.success(request, f"{_('The following fields were updated:')} {fields}")
 
-    if extra_form and extra_form.submit_bold_json.data and extra_form.validate_on_submit():
+    if extra_form and "submit_bold_json" in request.POST and extra_form.is_valid():
 
-        data = extra_form.bold_json.data
+        data = extra_form.cleaned_data["bold_json"]
         if not isinstance(data, list):
             data = [data]
 
         uploaded_files = []
         for file in data:
-            if allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file.save(Path(current_app.config["UPLOAD_FOLDER"]) / filename)
-                uploaded_files.append(filename)
+            if allowed_file(file.name):
+                uploaded_files.append(save_uploaded_file(file, upload_folder))
             else:
-                message = _("No '_bold.json' was uploaded.")
-                flash(message, category="warning")
-                return redirect(request.url)
+                messages.warning(request, _("No '_bold.json' was uploaded."))
+                return redirect(request.get_full_path())
 
         form, items, fields = process_upload_form(
-            form.data,
+            form_data,
             activity_name,
             items,
-            JsonMeta(Path(current_app.config["UPLOAD_FOLDER"]) / uploaded_files[0]),
+            JsonMeta(upload_folder / uploaded_files[0]),
         )
 
         if not fields:
-            message = _("No field could be updated.")
-            flash(message, category="warning")
-            return redirect(request.url)
+            messages.warning(request, _("No field could be updated."))
+            return redirect(request.get_full_path())
 
-        message = f"{_('The following fields were updated:')} {fields}"
-        flash(message, category="success")
+        messages.success(request, f"{_('The following fields were updated:')} {fields}")
 
-    elif form.submit.data and form.is_submitted():
+    elif "submit" in request.POST:
 
         if "messages" in activity:
-            for message in validate_activity(activity["messages"], items, form.data):
-                flash(message, category="danger")
+            for message in validate_activity(activity["messages"], items, form_data):
+                messages.error(request, message)
 
-        form, items = update_items_and_forms(form.data, items, activity_name)
+        form, items = update_items_and_forms(form_data, items, activity_name)
 
-    completed_items = sum(bool(i["is_answered"]) for i in items.values())
     nb_items = sum(bool(i["visibility"]) for i in items.values())
 
-    flash(_("Your data was saved."), category="success")
+    messages.success(request, _("Your data was saved."))
 
     if nb_items > base_nb_items:
         # update so it gets the right number and the names of items added
-        flash(f"{nb_items - base_nb_items}  {_('items were added.')}", category="success")
+        messages.success(request, f"{nb_items - base_nb_items}  {_('items were added.')}")
 
-    return render_template(
-        "protocols/protocol.html",
-        protocol_pref_label=protocol_name,
-        activity_pref_label=get_prefLabel(activity),
-        activity_preamble=get_preamble(activity),
-        activities=activities,
-        form=form,
-        nb_items=nb_items,
-        completed_items=completed_items,
-        upload_participants_form=upload_participants_form,
-        upload_acquisition_form=extra_form,
-        show_export_button=show_export_button(protocol_name),
+    return render_activity(
+        request,
+        protocol_name,
+        activity,
+        activities,
+        items,
+        form,
+        upload_participants_form,
+        extra_form,
     )
 
 
-def generate_extra_forms(protocol_name, activity_name) -> tuple[FlaskForm | None]:
+def render_activity(
+    request,
+    protocol_name,
+    activity,
+    activities,
+    items,
+    form,
+    upload_participants_form,
+    extra_form,
+):
+    completed_items = sum(bool(i["is_answered"]) for i in items.values())
+    nb_items = sum(bool(i["visibility"]) for i in items.values())
+
+    return render(
+        request,
+        "protocols/protocol.html",
+        {
+            "protocol_pref_label": protocol_name,
+            "activity_pref_label": get_prefLabel(activity),
+            "activity_preamble": get_preamble(activity),
+            "activities": activities,
+            "form": form,
+            "progress": progress_bar(completed_items, nb_items),
+            "upload_participants_form": upload_participants_form,
+            "upload_acquisition_form": extra_form,
+            "show_export_button": show_export_button(protocol_name),
+        },
+    )
+
+
+def progress_bar(completed_items: int, nb_items: int) -> dict[str, Any]:
+    percent_completed = round(completed_items / nb_items * 100) if nb_items else 0
+
+    color = "danger"
+    if percent_completed > 80:
+        color = "success"
+    elif percent_completed > 60:
+        color = "info"
+    elif percent_completed > 40:
+        color = "secondary"
+    elif percent_completed > 20:
+        color = "warning"
+
+    return {
+        "completed_items": completed_items,
+        "nb_items": nb_items,
+        "percent_completed": percent_completed,
+        "color": color,
+        "emoji": mark_safe("&#127881;") if completed_items == nb_items else "",
+    }
+
+
+def get_form_data(form: forms.Form) -> dict[str, Any]:
+    """Return the submitted values of the form, cleaned whenever they are valid."""
+    form.is_valid()
+    cleaned_data = getattr(form, "cleaned_data", {})
+    return {
+        name: cleaned_data[name] if name in cleaned_data else form[name].value()
+        for name in form.fields
+    }
+
+
+def save_uploaded_file(file, folder: Path) -> str:
+    filename = get_valid_filename(Path(file.name).name)
+    with open(folder / filename, "wb") as f:
+        for chunk in file.chunks():
+            f.write(chunk)
+    return filename
+
+
+def generate_extra_forms(request, protocol_name, activity_name) -> tuple[forms.Form | None]:
 
     upload_participants_form = None
     upload_acquisition_form = None
@@ -284,14 +305,25 @@ def generate_extra_forms(protocol_name, activity_name) -> tuple[FlaskForm | None
     if (protocol_name == "neurovault" and activity_name == "participants") or (
         protocol_name == "cobidas" and activity_name == "sample"
     ):
-        upload_participants_form = UploadParticipantsForm(prefix="upload-")
+        upload_participants_form = UploadParticipantsForm(
+            *bound_form_args(request, "submit_upload"), prefix="upload"
+        )
 
     if (protocol_name == "neurovault" and activity_name == "mri_acquisition") or (
         protocol_name == "cobidas" and activity_name == "common_parameters"
     ):
-        upload_acquisition_form = UploadBoldJsonForm(prefix="mri_acquisition-")
+        upload_acquisition_form = UploadBoldJsonForm(
+            *bound_form_args(request, "submit_bold_json"), prefix="mri_acquisition"
+        )
 
     return upload_participants_form, upload_acquisition_form
+
+
+def bound_form_args(request, submit_name: str) -> tuple:
+    """Only bind an upload form to the request data if that form was submitted."""
+    if request.method == "POST" and submit_name in request.POST:
+        return request.POST, request.FILES
+    return ()
 
 
 def validate_participants_form(data):
@@ -300,12 +332,12 @@ def validate_participants_form(data):
         message = f"2 files must be uploaded. Received: {nb_files_uploaded}"
         return message
 
-    participants_json_uploaded = any(file.filename == "participants.json" for file in data)
+    participants_json_uploaded = any(file.name == "participants.json" for file in data)
     if not participants_json_uploaded:
         message = "No 'participants.json' was uploaded."
         return message
 
-    participants_tsv_uploaded = any(file.filename == "participants.tsv" for file in data)
+    participants_tsv_uploaded = any(file.name == "participants.tsv" for file in data)
     if not participants_tsv_uploaded:
         message = "No 'participants.tsv' was uploaded."
         return message
@@ -323,14 +355,16 @@ class JsonMeta:
             self.__setattr__(key, json_content[key])
 
 
-def process_participants_form(form: FlaskForm, activity_name: str, items, tsv_file, json_file):
-    found = extract_values_participants(tsv_file, json_content=json.load(open(json_file)))
-    return process_upload_form(form.data, activity_name, items, found)
+def process_participants_form(form_data: dict, activity_name: str, items, tsv_file, json_file):
+    with open(json_file) as f:
+        json_content = json.load(f)
+    found = extract_values_participants(tsv_file, json_content=json_content)
+    return process_upload_form(form_data, activity_name, items, found)
 
 
 def process_upload_form(form_data, activity_name, items, found):
     form, items = update_items_and_forms(form_data, items, activity_name, obj=found)
-    fields = [key for key in found.__dir__() if getattr(found, key) and key in form]
+    fields = [key for key in found.__dir__() if getattr(found, key) and key in form.fields]
     return form, items, fields
 
 
@@ -342,7 +376,7 @@ def update_items_and_forms(form_data: dict, items, activity_name: str, obj=None)
 
     items = update_visibility(items, form_data)
     items = update_format(items, form_data)
-    form = generate_form(items, prefix=activity_name, obj=obj)
+    form = generate_form(items, prefix=activity_name, obj=obj, initial=form_data)
     return form, items
 
 
@@ -358,7 +392,7 @@ def update_visibility(items: dict[str, Any], form_data):
         try:
             exec(string_to_eval)
         except Exception as exc:
-            current_app.logger.error(
+            logger.error(
                 f"Could not execute '{string_to_eval}' as a valid python statement.\n{exc}"
             )
 
@@ -370,9 +404,7 @@ def update_visibility(items: dict[str, Any], form_data):
                 items[item]["visibility"] = eval(isVis)
             except Exception as exc:
                 # actually log this
-                current_app.logger.error(
-                    f"Could not evaluate '{isVis}' as a valid python expression.\n{exc}"
-                )
+                logger.error(f"Could not evaluate '{isVis}' as a valid python expression.\n{exc}")
                 items[item]["visibility"] = False
 
     return items
@@ -395,7 +427,7 @@ def validate_activity(
         try:
             exec(string_to_eval)
         except Exception as exc:
-            current_app.logger.error(
+            logger.error(
                 f"Could not execute '{string_to_eval}' as a valid python statement.\n{exc}"
             )
 
@@ -407,7 +439,7 @@ def validate_activity(
                 messages_to_print.append(message["message"])
         except Exception as exc:
             # actually log this
-            current_app.logger.error(
+            logger.error(
                 f"Could not evaluate '{message['jsExpression']}' as a valid python expression.\n{exc}"
             )
 

@@ -1,7 +1,18 @@
+{% load i18n %}
+<!--  -->
+{% url 'protocols:protocol' 'cobidas' as cobidas_url %}
+{% url 'protocols:protocol' 'neurovault' as neurovault_url %}
+{% url 'protocols:protocol' 'eyetracking' as eyetracking_url %}
+{% url 'protocols:protocol' 'pet' as pet_url %}
+{% url 'protocols:protocol' 'reexecution' as reexecution_url %}
+{% url 'public:faq' as faq_url %}
+{% url 'public:about' as about_url %}
+{% url 'auth:register' as register_url %}
+{% url 'auth:login' as login_url %}
 <div class="container bg-primary">
   <nav class="navbar navbar-expand-lg navbar-light bg-primary sticky-top">
     <div class="container-fluid">
-      <a class="navbar-brand" href="{{ url_for('public.index') }}">eCOBIDAS</a>
+      <a class="navbar-brand" href="{% url 'public:index' %}">eCOBIDAS</a>
       <button
         class="navbar-toggler"
         type="button"
@@ -18,8 +29,8 @@
         <ul class="navbar-nav my-1 mx-auto">
           <li class="nav-item">
             <a
-              class="nav-link {{ 'active' if request.path == url_for('protocol.protocol', protocol_name='cobidas') }}"
-              href="{{ url_for('protocol.protocol', protocol_name='cobidas') }}"
+              class="nav-link {% if request.path == cobidas_url %}active{% endif %}"
+              href="{{ cobidas_url }}"
               >cobidas MRI</a
             >
           </li>
@@ -30,34 +41,34 @@
               data-bs-toggle="dropdown"
               aria-expanded="false"
             >
-              {{_("Other checklists")}}
+              {% translate "Other checklists" %}
             </a>
             <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
               <li>
                 <a
-                  class="dropdown-item  {{ 'active' if request.path == url_for('protocol.protocol', protocol_name='neurovault') }}"
-                  href="{{ url_for('protocol.protocol', protocol_name='neurovault') }}"
+                  class="dropdown-item {% if request.path == neurovault_url %}active{% endif %}"
+                  href="{{ neurovault_url }}"
                   >Neurovault</a
                 >
               </li>
               <li>
                 <a
-                  class="dropdown-item {{ 'active' if request.path == url_for('protocol.protocol', protocol_name='eyetracking') }}"
-                  href="{{ url_for('protocol.protocol', protocol_name='eyetracking') }}"
+                  class="dropdown-item {% if request.path == eyetracking_url %}active{% endif %}"
+                  href="{{ eyetracking_url }}"
                   >eyetracking</a
                 >
               </li>
               <li>
                 <a
-                  class="dropdown-item {{ 'active' if request.path == url_for('protocol.protocol', protocol_name='pet') }}"
-                  href="{{ url_for('protocol.protocol', protocol_name='pet') }}"
+                  class="dropdown-item {% if request.path == pet_url %}active{% endif %}"
+                  href="{{ pet_url }}"
                   >PET</a
                 >
               </li>
               <li>
                 <a
-                  class="dropdown-item {{ 'active' if request.path == url_for('protocol.protocol', protocol_name='reexecution') }}"
-                  href="{{ url_for('protocol.protocol', protocol_name='reexecution') }}"
+                  class="dropdown-item {% if request.path == reexecution_url %}active{% endif %}"
+                  href="{{ reexecution_url }}"
                   >reexecution</a
                 >
               </li>
@@ -65,15 +76,15 @@
           </li>
           <li class="nav-item">
             <a
-              class="nav-link {{ 'active' if request.path == url_for('public.faq') }}"
-              href="{{ url_for('public.faq') }}"
+              class="nav-link {% if request.path == faq_url %}active{% endif %}"
+              href="{{ faq_url }}"
               >FAQ</a
             >
           </li>
           <li class="nav-item">
             <a
-              class="nav-link {{ 'active' if request.path == url_for('public.about') }}"
-              href="{{ url_for('public.about') }}"
+              class="nav-link {% if request.path == about_url %}active{% endif %}"
+              href="{{ about_url }}"
               >About</a
             >
           </li>
@@ -82,15 +93,15 @@
         <ul class="navbar-nav my-1">
           <li class="nav-item">
             <a
-              class="nav-link {{ 'active' if request.path == url_for('auth.register') }}"
-              href="{{ url_for('auth.register') }}"
+              class="nav-link {% if request.path == register_url %}active{% endif %}"
+              href="{{ register_url }}"
               ><b>REGISTER</b></a
             >
           </li>
           <li class="nav-item">
             <a
-              class="nav-link {{ 'active' if request.path == url_for('auth.login') }}"
-              href="{{ url_for('auth.login') }}"
+              class="nav-link {% if request.path == login_url %}active{% endif %}"
+              href="{{ login_url }}"
               ><b>LOGIN</b></a
             >
           </li>

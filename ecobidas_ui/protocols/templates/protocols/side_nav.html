@@ -1,9 +1,10 @@
+{% load i18n %}
 <div class="navbar-expand-sm mb-5">
   <ul class="nav flex-column nav-pills nav-fill">
-    {% for act in activities %} {% set prefix = loop.index - 1 %}
+    {% for act in activities %}
     <li class="nav-item">
-      <a class="{{ act['class'] }}" aria-current="page" href="{{ act['link'] }}"
-        >{% if prefix > 0 %}{{prefix}} - {% endif %}{{ act['name'] }}</a
+      <a class="{{ act.class }}" aria-current="page" href="{{ act.link }}"
+        >{% if forloop.counter0 > 0 %}{{ forloop.counter0 }} - {% endif %}{{ act.name }}</a
       >
     </li>
     {% endfor %}
@@ -11,20 +12,20 @@
     {% if show_export_button %}
     <li class="nav-item">
       <a
-        href="{{ url_for('export') }}"
+        href="{% url 'export' %}"
         type="button"
         class="btn btn-outline-primary my-1"
       >
-        {{_("Export")}}
+        {% translate "Export" %}
       </a>
     </li>
     <li class="nav-item">
       <a
-        href="{{ url_for('generate.generate') }}"
+        href="{% url 'generate:generate' %}"
         type="button"
         class="btn btn-outline-primary my-1"
       >
-        {{_("Generate method")}}
+        {% translate "Generate method" %}
       </a>
     </li>
     {% endif %}

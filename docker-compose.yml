@@ -32,7 +32,7 @@ services:
         -   db-password
         ports:
         -   8000:8000
-        command: /usr/local/bin/gunicorn -w 2 -b :8000 'ecobidas_ui.app:create_app()'
+        command: /usr/local/bin/gunicorn -w 2 -b :8000 ecobidas_ui.wsgi
         networks:
         -   backnet
         -   frontnet
