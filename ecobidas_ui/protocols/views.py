@@ -9,6 +9,7 @@ from django.shortcuts import redirect, render
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
+from ecobidas_ui.protocols.expressions import is_true, to_value
 from ecobidas_ui.protocols.forms import (
     UploadBoldJsonForm,
     UploadParticipantsForm,
@@ -378,67 +379,27 @@ def update_items_and_forms(form_data: dict, items, activity_name: str, obj=None)
     return form, items
 
 
+def answers_to_values(items: dict[str, Any], form_data) -> dict[str, Any]:
+    """Return the answers to the items as values usable in the schema expressions."""
+    return {key: to_value(value) for key, value in form_data.items() if key in items}
+
+
 def update_visibility(items: dict[str, Any], form_data):
     """Evaluate visibility condition of each item and make item visible if necessary."""
-    # assign response to a variable with same name as the item it comees from
-    for key, value in form_data.items():
-        if key not in items:
-            continue
-        if not value:
-            value = None
-        string_to_eval = f"{key} = {value}"
-        try:
-            exec(string_to_eval)
-        except Exception as exc:
-            logger.error(
-                f"Could not execute '{string_to_eval}' as a valid python statement.\n{exc}"
-            )
-
-    # evaluate visibility
-    for item, values in items.items():
-        isVis = values["isVis"]
-        if isinstance(isVis, str):
-            try:
-                items[item]["visibility"] = eval(isVis)
-            except Exception as exc:
-                # actually log this
-                logger.error(f"Could not evaluate '{isVis}' as a valid python expression.\n{exc}")
-                items[item]["visibility"] = False
-
+    values = answers_to_values(items, form_data)
+    for item in items.values():
+        if isinstance(item["isVis"], str):
+            item["visibility"] = is_true(item["isVis"], values)
     return items
 
 
 def validate_activity(
     activity_messages: list[dict[str, str]], items: dict[str, Any], form_data
 ) -> list[str]:
-
-    if not activity_messages:
-        return []
-
-    # assign response to a variable with same name as the item it comees from
-    for key, value in form_data.items():
-        if key not in items:
-            continue
-        if not value:
-            value = None
-        string_to_eval = f"{key} = {value}"
-        try:
-            exec(string_to_eval)
-        except Exception as exc:
-            logger.error(
-                f"Could not execute '{string_to_eval}' as a valid python statement.\n{exc}"
-            )
-
-    # check if any validation error needs to be shown
-    messages_to_print = []
-    for message in activity_messages:
-        try:
-            if eval(message["jsExpression"]):
-                messages_to_print.append(message["message"])
-        except Exception as exc:
-            # actually log this
-            logger.error(
-                f"Could not evaluate '{message['jsExpression']}' as a valid python expression.\n{exc}"
-            )
-
-    return messages_to_print
+    """Return the validation messages of the activity whose condition is true."""
+    values = answers_to_values(items, form_data)
+    return [
+        message["message"]
+        for message in activity_messages or []
+        if is_true(message["jsExpression"], values)
+    ]

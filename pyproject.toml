@@ -55,7 +55,7 @@ readme = "README.md"
 requires-python = ">=3.12"
 
 [tool.codespell]
-ignore-words-list = "te,nd,jist"
+ignore-words-list = "te,nd,jist,notin"
 skip = "./.git,*.svg,env,ecobidas_ui/locale/**"
 
 [tool.djlint]
