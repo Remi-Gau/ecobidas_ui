@@ -370,7 +370,6 @@ dependencies = [
     { name = "environs" },
     { name = "gunicorn" },
     { name = "markdownify" },
-    { name = "mysql-connector" },
     { name = "pandas" },
     { name = "requests" },
     { name = "rich" },
@@ -425,7 +424,6 @@ requires-dist = [
     { name = "environs" },
     { name = "gunicorn" },
     { name = "markdownify" },
-    { name = "mysql-connector" },
     { name = "pandas" },
     { name = "requests" },
     { name = "rich" },
@@ -640,12 +638,6 @@ sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec9
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload-time = "2022-08-14T12:40:09.779Z" },
 ]
-
-[[package]]
-name = "mysql-connector"
-version = "2.2.9"
-source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/28/04/e40098f3730e75bbe36a338926f566ea803550a34fb50535499f4fc4787a/mysql-connector-2.2.9.tar.gz", hash = "sha256:1733e6ce52a049243de3264f1fbc22a852cb35458c4ad739ba88189285efdf32", size = 11852649, upload-time = "2019-04-01T14:40:08.091Z" }
 
 [[package]]
 name = "nodeenv"

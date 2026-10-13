@@ -1,0 +1,46 @@
+---
+name: Docker compose
+
+on:
+    push:
+        branches:
+        -   main
+    pull_request:
+        branches:
+        -   '*'
+        paths:
+        -   .dockerignore
+        -   .github/workflows/docker.yml
+        -   Dockerfile
+        -   docker-compose.yml
+        -   proxy/**
+        -   pyproject.toml
+        -   tests/docker/**
+        -   uv.lock
+
+concurrency:
+    group: ${{ github.workflow }}-${{ github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    smoke-test:
+        runs-on: ubuntu-latest
+        steps:
+        -   name: Clone repo
+            uses: actions/checkout@v7
+            with:
+                submodules: recursive
+                # .git is copied into the image: do not leave a token in it
+                persist-credentials: false
+        -   name: Set a secret key
+            run: echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+        -   name: Start the stack
+            run: docker compose up --build --detach --wait --wait-timeout 180
+        -   name: Run the smoke test
+            run: tests/docker/smoke_test.sh
+        -   name: Show the logs
+            if: failure()
+            run: docker compose logs
+        -   name: Stop the stack
+            if: always()
+            run: docker compose down --volumes
