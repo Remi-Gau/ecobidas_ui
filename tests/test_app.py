@@ -25,3 +25,13 @@ def test_activity_post(client):
     response = client.post("/en/protocol/neurovault/mri_acquisition", {"submit": ""})
     assert response.status_code == 200
     assert b"Your data was saved." in response.content
+
+
+def test_download_report(client):
+    response = client.get("/en/generate/download")
+
+    assert response.status_code == 200
+    assert response["Content-Type"].startswith("text/markdown")
+    assert 'filename="report.md"' in response["Content-Disposition"]
+    # filled with the data of the generate page
+    assert "Siemens" in response.content.decode()

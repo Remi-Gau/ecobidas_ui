@@ -4,7 +4,7 @@ import json
 
 from django.conf import settings
 from django.contrib import messages
-from django.http import FileResponse
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.template.loader import render_to_string
 from django.utils.translation import gettext as _
@@ -35,8 +35,12 @@ def generate(request):
 
 @require_methods("GET")
 def download(request):
-    tmp = md(render_to_string("generate/report.html", request=request), heading_style="ATX")
-    report = settings.UPLOAD_FOLDER / "report.md"
-    with open(report, "w") as f:
-        f.write(tmp)
-    return FileResponse(open(report, "rb"), content_type="text/markdown")
+    report = md(
+        render_to_string("generate/report.html", dummmy_data(), request=request),
+        heading_style="ATX",
+    )
+    return HttpResponse(
+        report,
+        content_type="text/markdown; charset=utf-8",
+        headers={"Content-Disposition": 'attachment; filename="report.md"'},
+    )

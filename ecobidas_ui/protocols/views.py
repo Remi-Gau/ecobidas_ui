@@ -1,14 +1,12 @@
 import json
 import logging
-from pathlib import Path
 from typing import Any
 
+import pandas as pd
 from django import forms
-from django.conf import settings
 from django.contrib import messages
 from django.shortcuts import redirect, render
 from django.utils.safestring import mark_safe
-from django.utils.text import get_valid_filename
 from django.utils.translation import gettext as _
 
 from ecobidas_ui.protocols.forms import (
@@ -117,79 +115,27 @@ def activity_post(request, protocol_name: str, activity_name: str):
     # keep the submitted values without displaying validation errors
     form = generate_form(items=items, prefix=activity_name, initial=form_data)
 
-    upload_folder = Path(settings.UPLOAD_FOLDER)
-
+    upload_submitted = False
+    found = None
     if (
-        upload_participants_form
+        upload_participants_form is not None
         and "submit_upload" in request.POST
         and upload_participants_form.is_valid()
     ):
-        data = upload_participants_form.cleaned_data["participants"]
+        upload_submitted = True
+        found = read_participants_upload(request, upload_participants_form)
+    elif extra_form is not None and "submit_bold_json" in request.POST and extra_form.is_valid():
+        upload_submitted = True
+        found = read_bold_json_upload(request, extra_form)
 
-        if message := validate_participants_form(data):
-            messages.warning(request, message)
+    if upload_submitted:
+        if found is None:
             return redirect(request.get_full_path())
 
-        for file in data:
-            if allowed_file(file.name):
-                save_uploaded_file(file, upload_folder)
-
-        tsv_file = upload_folder / "participants.tsv"
-        if not validate_participants_tsv(tsv_file):
-            message = _(
-                "The 'participants.tsv' does not seem to be valid: 'participant_id' column is missing."
-            )
-            messages.warning(request, mark_safe(f"<p>{message}</p>"))
-            return redirect(request.get_full_path())
-
-        json_file = upload_folder / "participants.json"
-        if not validate_participants_json(json_file):
-            messages.warning(
-                request,
-                mark_safe(
-                    "<p>"
-                    f"{_('The `participants.json` was not annotated. ')}"
-                    f"{_('Annotate your data with the ')}"
-                    "<a href='https://annotate.neurobagel.org/' target='_blank'"
-                    "class='alert-link'>"
-                    f"{_('neurobagel online annotation tool')}"
-                    "</a></p>"
-                ),
-            )
-            return redirect(request.get_full_path())
-
-        form, items, fields = process_participants_form(
-            form_data, activity_name, items, tsv_file, json_file
-        )
+        form, items, fields = process_upload_form(form_data, activity_name, items, found)
 
         if not fields:
-            messages.warning(request, _("No field could be updated."))
-            return redirect(request.get_full_path())
-
-        messages.success(request, f"{_('The following fields were updated:')} {fields}")
-
-    if extra_form and "submit_bold_json" in request.POST and extra_form.is_valid():
-        data = extra_form.cleaned_data["bold_json"]
-        if not isinstance(data, list):
-            data = [data]
-
-        uploaded_files = []
-        for file in data:
-            if allowed_file(file.name):
-                uploaded_files.append(save_uploaded_file(file, upload_folder))
-            else:
-                messages.warning(request, _("No '_bold.json' was uploaded."))
-                return redirect(request.get_full_path())
-
-        form, items, fields = process_upload_form(
-            form_data,
-            activity_name,
-            items,
-            JsonMeta(upload_folder / uploaded_files[0]),
-        )
-
-        if not fields:
-            messages.warning(request, _("No field could be updated."))
+            messages.warning(request, no_field_updated_message(found, form))
             return redirect(request.get_full_path())
 
         messages.success(request, f"{_('The following fields were updated:')} {fields}")
@@ -283,14 +229,6 @@ def get_form_data(form: forms.Form) -> dict[str, Any]:
     }
 
 
-def save_uploaded_file(file, folder: Path) -> str:
-    filename = get_valid_filename(Path(file.name).name)
-    with open(folder / filename, "wb") as f:
-        for chunk in file.chunks():
-            f.write(chunk)
-    return filename
-
-
 def generate_extra_forms(
     request, protocol_name, activity_name
 ) -> tuple[forms.Form | None, forms.Form | None]:
@@ -346,24 +284,86 @@ def validate_participants_form(data):
 
 
 class JsonMeta:
-    def __init__(self, json_file) -> None:
-        with open(json_file) as f:
-            json_content = json.load(f)
+    def __init__(self, json_content: dict[str, Any]) -> None:
         for key in json_content:
             self.__setattr__(key, json_content[key])
-
-
-def process_participants_form(form_data: dict, activity_name: str, items, tsv_file, json_file):
-    with open(json_file) as f:
-        json_content = json.load(f)
-    found = extract_values_participants(tsv_file, json_content=json_content)
-    return process_upload_form(form_data, activity_name, items, found)
 
 
 def process_upload_form(form_data, activity_name, items, found):
     form, items = update_items_and_forms(form_data, items, activity_name, obj=found)
     fields = [key for key in found.__dir__() if getattr(found, key) and key in form.fields]
     return form, items, fields
+
+
+def read_participants_upload(request, upload_form: forms.Form):
+    """Extract values from the uploaded participants.tsv and participants.json.
+
+    Return None and add a warning message if the files are not valid.
+    """
+    data = upload_form.cleaned_data["participants"]
+
+    if message := validate_participants_form(data):
+        messages.warning(request, message)
+        return None
+
+    files = {file.name: file for file in data}
+    try:
+        participants_tsv = pd.read_csv(files["participants.tsv"], sep="\t")
+        participants_json = json.load(files["participants.json"])
+    except ValueError:
+        messages.warning(request, _("The uploaded files could not be read."))
+        return None
+
+    if not validate_participants_tsv(participants_tsv):
+        message = _(
+            "The 'participants.tsv' does not seem to be valid: 'participant_id' column is missing."
+        )
+        messages.warning(request, mark_safe(f"<p>{message}</p>"))
+        return None
+
+    if not validate_participants_json(participants_json):
+        messages.warning(
+            request,
+            mark_safe(
+                "<p>"
+                f"{_('The `participants.json` was not annotated. ')}"
+                f"{_('Annotate your data with the ')}"
+                "<a href='https://annotate.neurobagel.org/' target='_blank'"
+                "class='alert-link'>"
+                f"{_('neurobagel online annotation tool')}"
+                "</a></p>"
+            ),
+        )
+        return None
+
+    return extract_values_participants(participants_tsv, json_content=participants_json)
+
+
+def read_bold_json_upload(request, upload_form: forms.Form):
+    """Extract values from the uploaded bold.json.
+
+    Return None and add a warning message if the file is not valid.
+    """
+    file = upload_form.cleaned_data["bold_json"]
+    if not allowed_file(file.name):
+        messages.warning(request, _("No '_bold.json' was uploaded."))
+        return None
+
+    try:
+        return JsonMeta(json.load(file))
+    except ValueError:
+        messages.warning(request, _("The uploaded file could not be read."))
+        return None
+
+
+def no_field_updated_message(found, form: forms.Form) -> str:
+    """Explain why no field could be updated from an uploaded file."""
+    known_fields = [key for key in vars(found) if key in form.fields]
+    if known_fields:
+        return _("No field could be updated: the file has no values for %(fields)s.") % {
+            "fields": ", ".join(known_fields)
+        }
+    return _("No field could be updated: the file has none of the fields of this page.")
 
 
 def update_items_and_forms(form_data: dict, items, activity_name: str, obj=None):

@@ -7,9 +7,6 @@ env.read_env()
 
 ROOT_DIR = Path(__file__).parent
 
-UPLOAD_FOLDER = ROOT_DIR / "tmp"
-UPLOAD_FOLDER.mkdir(parents=True, exist_ok=True)
-
 # ---- SETUP INSTRUCTIONS AND APP BEHAVIOR ####
 
 # ------ App-level configuration ###
