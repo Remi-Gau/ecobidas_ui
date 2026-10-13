@@ -42,6 +42,31 @@ echo "SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))'
 docker compose up --build
 ```
 
+The database (user accounts and saved answers) is kept in the `db` volume.
+
+## User accounts
+
+Users log in with their [ORCID iD](https://orcid.org): the site stores no passwords.
+An account is created the first time someone logs in.
+
+1. Register the site in the [ORCID developer tools](https://orcid.org/developer-tools)
+   with the redirect URI `https://<your domain>/auth/orcid/callback`.
+   To test, use the [ORCID sandbox](https://sandbox.orcid.org/developer-tools) instead
+   and set `ORCID_URL=https://sandbox.orcid.org`.
+2. Add the client ID and secret to your `.env`:
+
+   ```bash
+   ORCID_CLIENT_ID=APP-XXXXXXXXXXXXXXXX
+   ORCID_CLIENT_SECRET=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+   ```
+
+To give someone access to the admin site (`/admin/`), let them log in once, then run:
+
+```bash
+docker compose exec backend python manage.py make_admin 0000-0002-1825-0097
+# or locally: uv run python manage.py make_admin 0000-0002-1825-0097
+```
+
 ## Run the tests
 
 ```bash
@@ -51,6 +76,7 @@ tox run -e test  # or: uv run pytest
 ## Serve locally
 
 ```bash
+uv run python manage.py migrate
 uv run python manage.py runserver
 ```
 

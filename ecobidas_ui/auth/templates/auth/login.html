@@ -1,23 +1,32 @@
 {% extends "layout/default.html" %}
+{% load i18n %}
 <!--  -->
 {% block title %}eCOBIDAS - Login{% endblock %} {% block content %}
 <div class="container">
   <div class="row d-flex justify-content-center">
     <div class="col-md-6 col-lg-6 p-3">
-      <h1>Login</h1>
-      {% include "layout/form.html" with submit_name="submit" submit_label="Submit" %}
+      <h1>{% translate "Login" %}</h1>
       <p class="my-3">
-        Don't have a login?
-        <a href="{% url 'auth:register' %}">Register</a>
+        {% blocktranslate trimmed %}
+          Log in with your ORCID iD to save your answers to the checklists.
+          An account is created the first time you log in:
+          we only get your ORCID iD and your name.
+        {% endblocktranslate %}
+      </p>
+      {% if orcid_configured %}
+        <a class="btn btn-primary"
+           href="{% url 'auth:orcid' %}{% if next %}?next={{ next|urlencode }}{% endif %}">
+        {% translate "Log in with ORCID" %}</a>
+      {% else %}
+        <p class="text-danger">{% translate "Logging in with ORCID is not configured on this server." %}</p>
+      {% endif %}
+      <p class="my-3">
+        {% translate "Don't have an ORCID iD?" %}
+        <a href="https://orcid.org/register"
+           target="_blank"
+           rel="noopener">{% translate "Register on ORCID" %}</a>
       </p>
     </div>
   </div>
 </div>
-<!-- <form method="post">
-  <label for="username">Username</label>
-  <input name="username" id="username" required />
-  <label for="password">Password</label>
-  <input type="password" name="password" id="password" required />
-  <input type="submit" value="Log In" />
-</form> -->
 {% endblock %}

@@ -3,12 +3,20 @@ services:
     backend:
         build: .
         restart: always
-        command: gunicorn -w 2 -b :8000 ecobidas_ui.wsgi
+        # update the database before starting the site
+        command: sh -c "python manage.py migrate --noinput && gunicorn -w 2 -b :8000 ecobidas_ui.wsgi"
         environment:
             # set in your shell or in a .env file next to this file
             SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in your shell or in .env}
             DEBUG: 'false'
             ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+            DATABASE_PATH: /data/db.sqlite3
+            # log in with ORCID: see the README
+            ORCID_CLIENT_ID: ${ORCID_CLIENT_ID:-}
+            ORCID_CLIENT_SECRET: ${ORCID_CLIENT_SECRET:-}
+            ORCID_URL: ${ORCID_URL:-https://orcid.org}
+        volumes:
+        -   db:/data
         expose:
         -   8000
         healthcheck:
@@ -40,3 +48,6 @@ services:
 
 networks:
     frontnet:
+
+volumes:
+    db:

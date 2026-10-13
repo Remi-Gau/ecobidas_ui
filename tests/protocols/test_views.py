@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import pytest
 from django.core.files.uploadedfile import SimpleUploadedFile
 
+from ecobidas_ui.protocols.models import SavedAnswers
 from ecobidas_ui.protocols.utils import prep_activity_page
 
 BIDS_TEMPLATE = Path(__file__).parents[2] / "inputs" / "bids_template"
@@ -156,3 +158,48 @@ def test_validation_messages(client):
 
     messages = [str(message) for message in response.context["messages"]]
     assert any("minimum" in message.lower() for message in messages), messages
+
+
+@pytest.fixture
+def user(client, django_user_model):
+    user = django_user_model.objects.create(username="0000-0002-1825-0097")
+    client.force_login(user)
+    return user
+
+
+@pytest.mark.django_db
+def test_answers_are_saved(client, user, django_user_model):
+    response = client.post(
+        PREPROCESSING_URL,
+        {
+            "preprocessing-single_preprocessing_software": "0",
+            "preprocessing-operation_performed": ["0", "3"],
+            "submit": "",
+        },
+    )
+    assert "Your answers were saved." in response.content.decode()
+
+    saved = SavedAnswers.objects.get(user=user, protocol="cobidas", activity="preprocessing")
+    assert saved.answers["single_preprocessing_software"] == "0"
+
+    # the answers and the items they make visible are shown when coming back
+    content = client.get(PREPROCESSING_URL).content.decode()
+    assert '<select name="preprocessing-bet_software"' in content
+
+    # other users do not see them
+    client.force_login(django_user_model.objects.create(username="0000-0001-5109-3700"))
+    content = client.get(PREPROCESSING_URL).content.decode()
+    assert '<select name="preprocessing-bet_software"' not in content
+
+
+@pytest.mark.django_db
+def test_uploaded_values_are_saved(client, user):
+    with (
+        open(BIDS_TEMPLATE / "participants.tsv", "rb") as tsv,
+        open(BIDS_TEMPLATE / "participants.json", "rb") as json_file,
+    ):
+        upload_participants(client, [tsv, json_file])
+
+    saved = SavedAnswers.objects.get(user=user, activity="participants")
+    assert saved.answers["number_of_subjects"] > 0
+    assert saved.answers["subject_age_min"] is not None

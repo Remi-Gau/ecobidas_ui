@@ -1,11 +1,13 @@
 import json
 import logging
 from typing import Any
+from urllib.parse import quote
 
 import pandas as pd
 from django import forms
 from django.contrib import messages
 from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.utils.translation import gettext as _
 
@@ -17,6 +19,7 @@ from ecobidas_ui.protocols.forms import (
     validate_participants_json,
     validate_participants_tsv,
 )
+from ecobidas_ui.protocols.models import load_answers, save_answers
 from ecobidas_ui.protocols.utils import (
     activity_in_protocol,
     allowed_file,
@@ -85,7 +88,10 @@ def activity(request, protocol_name: str, activity_name: str):
         request, protocol_name, activity_name
     )
 
-    form = generate_form(items=items, prefix=activity_name)
+    if saved_answers := load_answers(request.user, protocol_name, activity_name):
+        form, items = update_items_and_forms(saved_answers, items, activity_name)
+    else:
+        form = generate_form(items=items, prefix=activity_name)
 
     return render_activity(
         request,
@@ -150,7 +156,18 @@ def activity_post(request, protocol_name: str, activity_name: str):
 
     nb_items = sum(bool(i["visibility"]) for i in items.values())
 
-    messages.success(request, _("Your data was saved."))
+    if request.user.is_authenticated:
+        save_answers(request.user, protocol_name, activity_name, form_data)
+        messages.success(request, _("Your answers were saved."))
+    else:
+        login_url = f"{reverse('auth:login')}?next={quote(request.get_full_path())}"
+        messages.info(
+            request,
+            mark_safe(
+                f"<a href='{login_url}' class='alert-link'>{_('Log in')}</a> "
+                f"{_('to save your answers.')}"
+            ),
+        )
 
     if nb_items > base_nb_items:
         # update so it gets the right number and the names of items added

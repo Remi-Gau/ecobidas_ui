@@ -7,7 +7,6 @@
 {% url 'protocols:protocol' 'reexecution' as reexecution_url %}
 {% url 'public:faq' as faq_url %}
 {% url 'public:about' as about_url %}
-{% url 'auth:register' as register_url %}
 {% url 'auth:login' as login_url %}
 <div class="container bg-primary">
   <nav class="navbar navbar-expand-lg navbar-light bg-primary sticky-top">
@@ -62,14 +61,28 @@
           </li>
         </ul>
         <ul class="navbar-nav my-1">
-          <li class="nav-item">
-            <a class="nav-link {% if request.path == register_url %}active{% endif %}"
-               href="{{ register_url }}"><b>REGISTER</b></a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link {% if request.path == login_url %}active{% endif %}"
-               href="{{ login_url }}"><b>LOGIN</b></a>
-          </li>
+          {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link"
+                 href="{{ orcid_url }}/{{ user.username }}"
+                 target="_blank"
+                 rel="noopener"
+                 title="ORCID iD: {{ user.username }}">{{ user.first_name|default:user.username }}</a>
+            </li>
+            <li class="nav-item">
+              <form method="post" action="{% url 'auth:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="nav-link btn btn-link">
+                  <b>{% translate "LOG OUT" %}</b>
+                </button>
+              </form>
+            </li>
+          {% else %}
+            <li class="nav-item">
+              <a class="nav-link {% if request.path == login_url %}active{% endif %}"
+                 href="{{ login_url }}{% if request.path != login_url %}?next={{ request.get_full_path|urlencode }}{% endif %}"><b>LOGIN</b></a>
+            </li>
+          {% endif %}
         </ul>
         {% include "layout/language_picker.html" %}
       </div>

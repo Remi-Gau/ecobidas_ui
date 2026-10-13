@@ -102,7 +102,7 @@ xfail_strict = true
 line-length = 100
 
 [tool.ruff.lint]
-ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D107", "E712"]
+ignore = ["D100", "D101", "D102", "D103", "D104", "D105", "D106", "D107", "E712"]
 # B: bugbear, C90: complexity, D: docstrings, E/W: pycodestyle, F: pyflakes,
 # I: isort, PLR091: too many arguments / returns, UP: pyupgrade
 select = ["B", "C90", "D", "E", "F", "I", "PLR0911", "PLR0913", "UP", "W"]

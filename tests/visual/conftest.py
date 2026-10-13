@@ -58,6 +58,13 @@ def fixed_version(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(context_processors, "ui_version", "0.0.0")
 
 
+@pytest.fixture(autouse=True)
+def orcid_configured(settings) -> None:
+    """Show the ORCID login button."""
+    settings.ORCID_CLIENT_ID = "APP-VISUAL-TEST"
+    settings.ORCID_CLIENT_SECRET = "not-a-secret"
+
+
 @pytest.fixture
 def assert_snapshot(page: Page, request: pytest.FixtureRequest) -> Callable[[str], None]:
     """Compare a full page screenshot to its reference image."""
