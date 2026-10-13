@@ -1,6 +1,10 @@
 .github
+.venv
+staticfiles
+# local settings: the settings of the container come from docker-compose.yml
+ecobidas_ui/.env
+.env
 images
-inputs
 nginx
 node_modules/.cache/prettier/.prettier-caches
 tests

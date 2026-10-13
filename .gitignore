@@ -184,3 +184,6 @@ staticfiles/
 
 # visual regression tests
 tests/visual/snapshot_failures/
+
+# environment variables for docker compose
+/.env

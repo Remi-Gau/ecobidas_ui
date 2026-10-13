@@ -1,44 +1,18 @@
 ---
 services:
-    db:
-    # We use a mariadb image which supports both amd64 & arm64 architecture
-        image: mariadb:10-focal
-    # If you really want to use MySQL, uncomment the following line
-    #image: mysql:8
-        command: --default-authentication-plugin=mysql_native_password
-        restart: always
-        healthcheck:
-            test: [CMD-SHELL, mysqladmin ping -h 127.0.0.1 --password="$$(cat /run/secrets/db-password)" --silent]
-            interval: 3s
-            retries: 5
-            start_period: 30s
-        secrets:
-        -   db-password
-        volumes:
-        -   db-data:/var/lib/mysql
-        networks:
-        -   backnet
-        environment:
-        -   MYSQL_DATABASE=example
-        -   MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
-        expose:
-        -   3306
-        -   33060
-
     backend:
         build: .
         restart: always
-        secrets:
-        -   db-password
-        ports:
-        -   8000:8000
         command: gunicorn -w 2 -b :8000 ecobidas_ui.wsgi
+        environment:
+            # set in your shell or in a .env file next to this file
+            SECRET_KEY: ${SECRET_KEY:?set SECRET_KEY in your shell or in .env}
+            DEBUG: 'false'
+            ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
+        expose:
+        -   8000
         networks:
-        -   backnet
         -   frontnet
-        depends_on:
-            db:
-                condition: service_healthy
 
     proxy:
         build: proxy
@@ -50,13 +24,5 @@ services:
         networks:
         -   frontnet
 
-volumes:
-    db-data:
-
-secrets:
-    db-password:
-        file: db/password.txt
-
 networks:
-    backnet:
     frontnet:

@@ -30,6 +30,18 @@ To update the pinned dependencies:
 tox run -e update_dependencies  # or: uv lock --upgrade
 ```
 
+## Run with docker compose
+
+The site is served by gunicorn behind an nginx proxy on <http://localhost>.
+
+Set a secret key (and optionally the allowed hosts) in a `.env` file next to `docker-compose.yml`:
+
+```bash
+echo "SECRET_KEY=$(python3 -c 'import secrets; print(secrets.token_urlsafe(50))')" > .env
+# ALLOWED_HOSTS=example.org  # comma separated, defaults to localhost,127.0.0.1
+docker compose up --build
+```
+
 ## Run the tests
 
 ```bash

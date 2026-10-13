@@ -43,8 +43,7 @@ dependencies = [
     "requests",
     "environs",
     "markdownify",
-    "gunicorn",
-    "mysql-connector"
+    "gunicorn"
 ]
 description = "UI for eCOBIDAS"
 # Version from setuptools_scm
