@@ -99,3 +99,60 @@ def test_upload_invalid_participants(client):
 
     assert response.status_code == 200
     assert "The uploaded files could not be read." in response.content.decode()
+
+
+def test_answers_are_not_executed(client, tmp_path):
+    target = tmp_path / "pwned"
+    answer = f"__import__('pathlib').Path('{target}').touch()"
+
+    response = client.post(
+        PARTICIPANTS_URL, {"participants-number_of_subjects": answer, "submit": ""}
+    )
+
+    assert response.status_code == 200
+    assert not target.exists()
+
+
+PREPROCESSING_URL = "/en/protocol/cobidas/preprocessing"
+
+
+def test_conditional_items_become_visible(client):
+    # bet_software is only visible if:
+    # single_preprocessing_software == 0 && operation_performed.includes(0)
+    response = client.get(PREPROCESSING_URL)
+    assert '<select name="preprocessing-bet_software"' not in response.content.decode()
+
+    response = client.post(
+        PREPROCESSING_URL,
+        {
+            "preprocessing-single_preprocessing_software": "0",
+            "preprocessing-operation_performed": ["0", "3"],
+            "submit": "",
+        },
+    )
+    assert '<select name="preprocessing-bet_software"' in response.content.decode()
+
+    response = client.post(
+        PREPROCESSING_URL,
+        {
+            "preprocessing-single_preprocessing_software": "1",
+            "preprocessing-operation_performed": ["0", "3"],
+            "submit": "",
+        },
+    )
+    assert '<select name="preprocessing-bet_software"' not in response.content.decode()
+
+
+def test_validation_messages(client):
+    response = client.post(
+        PARTICIPANTS_URL,
+        {
+            "participants-subject_age_min": "40",
+            "participants-subject_age_mean": "30",
+            "participants-subject_age_max": "50",
+            "submit": "",
+        },
+    )
+
+    messages = [str(message) for message in response.context["messages"]]
+    assert any("minimum" in message.lower() for message in messages), messages
