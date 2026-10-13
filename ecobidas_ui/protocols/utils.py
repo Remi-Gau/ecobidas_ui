@@ -1,5 +1,6 @@
 # functions to be used by the routes
 import json
+from copy import deepcopy
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -155,7 +156,8 @@ def prep_activity_page(protocol_name: str, activity_name: str):
 
     activities = get_nav_bar_content(protocol_name, get_prefLabel(activity))
 
-    items = get_items_for_activity(activity_file)
+    # the items are cached: copy them so that each request can update its own
+    items = deepcopy(get_items_for_activity(activity_file))
 
     return activities, activity, items
 
