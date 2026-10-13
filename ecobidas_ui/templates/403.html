@@ -1,0 +1,10 @@
+{% extends "error.html" %}
+{% load i18n %}
+<!--  -->
+{% block error_code %}403{% endblock %}
+<!--  -->
+{% block title %}403 Error - Forbidden{% endblock %}
+<!--  -->
+{% block error %}
+  {% translate "Sorry, you are not allowed to see this page." %}
+{% endblock %}

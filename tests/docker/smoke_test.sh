@@ -53,12 +53,30 @@ else
 fi
 
 # forms are protected against CSRF and work through the proxy
-curl --silent --cookie-jar "$COOKIES" --output "$PAGE" "$BASE_URL/en/auth/login" || true
+FORM_URL="$BASE_URL/en/protocol/neurovault/participants"
+curl --silent --cookie-jar "$COOKIES" --output "$PAGE" "$FORM_URL" || true
 token="$(grep --only-matching 'name="csrfmiddlewaretoken" value="[^"]*"' "$PAGE" | head -n 1 | sed 's/.*value="//; s/"$//' || true)"
-# login is not implemented yet: 501 means the request passed the CSRF checks
-check "POST with CSRF token" 501 "$(status --cookie "$COOKIES" --header "Origin: $BASE_URL" \
-    --data "csrfmiddlewaretoken=$token&username=user&password=password" "$BASE_URL/en/auth/login")"
-check "POST without CSRF token" 403 "$(status --data "username=user" "$BASE_URL/en/auth/login")"
+check "POST with CSRF token" 200 "$(status --cookie "$COOKIES" --header "Origin: $BASE_URL" \
+    --data "csrfmiddlewaretoken=$token&submit=" "$FORM_URL")"
+check "POST without CSRF token" 403 "$(status --data "submit=" "$FORM_URL")"
+
+# logging in with ORCID: the login state is kept in the session, in the database
+location="$(curl --silent --output /dev/null --write-out '%{redirect_url}' \
+    --cookie "$COOKIES" --cookie-jar "$COOKIES" "$BASE_URL/en/auth/orcid" || true)"
+if [[ "$location" == */oauth/authorize\?* ]]; then
+    check "login redirects to ORCID" yes yes
+else
+    check "login redirects to ORCID" yes "no: '$location'"
+fi
+check "ORCID callback with a wrong state" 400 \
+    "$(status --cookie "$COOKIES" "$BASE_URL/auth/orcid/callback?code=abc&state=wrong")"
+
+check "logout without CSRF token" 403 "$(status --request POST "$BASE_URL/en/auth/logout")"
+
+# the admin site logs in with ORCID
+check "admin redirects to its login" 302 "$(status "$BASE_URL/admin/")"
+check "admin login redirects to ORCID login" 302 "$(status "$BASE_URL/admin/login/")"
+check "GET /static/admin/css/base.css" 200 "$(status "$BASE_URL/static/admin/css/base.css")"
 
 if ((failures > 0)); then
     echo "$failures check(s) failed"

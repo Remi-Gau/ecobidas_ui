@@ -1,0 +1,10 @@
+{% extends "error.html" %}
+{% load i18n %}
+<!--  -->
+{% block error_code %}400{% endblock %}
+<!--  -->
+{% block title %}400 Error - Bad Request{% endblock %}
+<!--  -->
+{% block error %}
+  {% translate "Sorry, this request is not valid." %}
+{% endblock %}

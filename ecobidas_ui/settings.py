@@ -19,6 +19,10 @@ SECRET_KEY = env.str("SECRET_KEY")
 ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", ["localhost", "127.0.0.1", "[::1]", "backend"])
 
 INSTALLED_APPS = [
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "django_bootstrap5",
@@ -35,6 +39,7 @@ MIDDLEWARE = [
     "django.middleware.locale.LocaleMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -51,23 +56,41 @@ TEMPLATES = [
             "context_processors": [
                 "django.template.context_processors.debug",
                 "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
                 "django.template.context_processors.i18n",
                 "django.contrib.messages.context_processors.messages",
                 "ecobidas_ui.context_processors.version",
                 "ecobidas_ui.context_processors.languages",
+                "ecobidas_ui.context_processors.orcid",
             ],
         },
     },
 ]
 
-# No user accounts yet: keep sessions in signed cookies so no database is needed.
-SESSION_ENGINE = "django.contrib.sessions.backends.signed_cookies"
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.sqlite3",
-        "NAME": ROOT_DIR.parent / "db.sqlite3",
+        "NAME": env.path("DATABASE_PATH", ROOT_DIR.parent / "db.sqlite3"),
+        "OPTIONS": {
+            # let the gunicorn workers write concurrently without "database is locked" errors
+            "init_command": "PRAGMA journal_mode=WAL;",
+            "transaction_mode": "IMMEDIATE",
+            "timeout": 20,
+        },
     }
 }
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# User accounts
+LOGIN_URL = "auth:login"
+LOGIN_REDIRECT_URL = "home"
+LOGOUT_REDIRECT_URL = "home"
+# users log in with ORCID: register this site at https://orcid.org/developer-tools
+# with the redirect URI https://<your domain>/auth/orcid/callback
+ORCID_CLIENT_ID = env.str("ORCID_CLIENT_ID", "")
+ORCID_CLIENT_SECRET = env.str("ORCID_CLIENT_SECRET", "")
+# use https://sandbox.orcid.org to test with sandbox accounts
+ORCID_URL = env.str("ORCID_URL", "https://orcid.org").rstrip("/")
 
 # Static content
 STATIC_URL = "static/"

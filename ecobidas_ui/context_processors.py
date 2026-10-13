@@ -17,3 +17,8 @@ def languages(request):
             for code, info in settings.LANGUAGES_INFO.items()
         ]
     }
+
+
+def orcid(request):
+    """Link to the ORCID profiles of the users."""
+    return {"orcid_url": settings.ORCID_URL}

@@ -32,8 +32,12 @@ jobs:
                 submodules: recursive
                 # .git is copied into the image: do not leave a token in it
                 persist-credentials: false
-        -   name: Set a secret key
-            run: echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+        -   name: Set the secrets
+            run: |
+                echo "SECRET_KEY=$(openssl rand -hex 32)" > .env
+                # fake ORCID client: the smoke test does not complete the login
+                echo "ORCID_CLIENT_ID=APP-SMOKE-TEST" >> .env
+                echo "ORCID_CLIENT_SECRET=not-a-secret" >> .env
         -   name: Start the stack
             run: docker compose up --build --detach --wait --wait-timeout 180
         -   name: Run the smoke test

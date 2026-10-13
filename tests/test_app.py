@@ -24,7 +24,8 @@ def test_method_not_allowed(client):
 def test_activity_post(client):
     response = client.post("/en/protocol/neurovault/mri_acquisition", {"submit": ""})
     assert response.status_code == 200
-    assert b"Your data was saved." in response.content
+    # anonymous users are told to log in to save their answers
+    assert b"to save your answers." in response.content
 
 
 def test_download_report(client):
