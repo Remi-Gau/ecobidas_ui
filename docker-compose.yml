@@ -11,6 +11,13 @@ services:
             ALLOWED_HOSTS: ${ALLOWED_HOSTS:-localhost,127.0.0.1}
         expose:
         -   8000
+        healthcheck:
+            # use the first allowed host: django rejects requests for other hosts
+            test: [CMD-SHELL, 'curl --fail --silent --output /dev/null --header "Host: $${ALLOWED_HOSTS%%,*}" http://localhost:8000/en/index']
+            interval: 5s
+            timeout: 5s
+            retries: 5
+            start_period: 10s
         networks:
         -   frontnet
 
@@ -20,7 +27,14 @@ services:
         ports:
         -   80:80
         depends_on:
-        -   backend
+            backend:
+                condition: service_healthy
+        healthcheck:
+            # static files are served by the backend without checking the host
+            test: [CMD-SHELL, curl --fail --silent --output /dev/null http://localhost/static/css/main.css]
+            interval: 5s
+            timeout: 5s
+            retries: 5
         networks:
         -   frontnet
 
